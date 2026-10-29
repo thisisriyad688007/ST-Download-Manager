@@ -1,4 +1,4 @@
-name: Build Windows EXE
+name: Build Desktop App EXE
 
 on:
   push:
@@ -12,23 +12,14 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
       with:
-        python-version: '3.11'
+        node-version: '18'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install pyinstaller
-        if (Test-Path "requirements.txt") { pip install -r requirements.txt }
+    - name: Install Dependencies
+      run: npm install
 
-    - name: Build with PyInstaller
-      run: |
-        pyinstaller --onefile --noconsole --name "ST-Download-Manager" main.py
-
-    - name: Upload EXE Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: ST-Download-Manager-EXE
-        path: dist/*.exe
+    - name: Build App (EXE)
+      run: npm run build
+      # যদি প্রজেক্টের package.json-এ বিল্ড কমান্ড অন্য কিছু হয় (যেমন npm run dist), তবে সেটি এখানে বসাবেন।
