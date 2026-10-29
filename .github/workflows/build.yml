@@ -1,8 +1,9 @@
-name: Build Desktop App EXE
+name: Build Desktop Installer
 
 on:
   push:
     branches: [ main, master ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -17,9 +18,24 @@ jobs:
       with:
         node-version: '18'
 
-    - name: Install Dependencies
+    - name: Install Root Dependencies
       run: npm install
 
-    - name: Build App (EXE)
-      run: npm run build
-      # যদি প্রজেক্টের package.json-এ বিল্ড কমান্ড অন্য কিছু হয় (যেমন npm run dist), তবে সেটি এখানে বসাবেন।
+    - name: Install Desktop Dependencies & Build
+      run: |
+        if (Test-Path "desktop") {
+          cd desktop
+          npm install
+          npm run build
+        } else {
+          npm run dist
+        }
+
+    - name: Upload Installer Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ST-Download-Manager-Installer
+        path: |
+          desktop/dist/*.exe
+          dist/*.exe
+          build/*.exe
