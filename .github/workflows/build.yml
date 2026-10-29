@@ -16,26 +16,35 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22'
 
-    - name: Install Root Dependencies
-      run: npm install
-
-    - name: Install Desktop Dependencies & Build
+    - name: Inspect and Build
       run: |
-        if (Test-Path "desktop") {
+        if (Test-Path "desktop/package.json") {
+          Write-Output "--- desktop/package.json scripts ---"
+          Get-Content desktop/package.json
           cd desktop
-          npm install
-          npm run build
+          npm install --legacy-peer-deps
+          # scripts এর মধ্যে build, dist বা package থাকলে সেটি রান করবে
+          $pkg = Get-Content package.json | ConvertFrom-Json
+          if ($pkg.scripts.dist) { npm run dist }
+          elseif ($pkg.scripts.build) { npm run build }
+          elseif ($pkg.scripts.package) { npm run package }
+          elseif ($pkg.scripts.make) { npm run make }
+          else { npx electron-builder --win }
         } else {
+          npm install --legacy-peer-deps
           npm run dist
         }
 
     - name: Upload Installer Artifact
       uses: actions/upload-artifact@v4
+      if: always()
       with:
         name: ST-Download-Manager-Installer
         path: |
           desktop/dist/*.exe
           dist/*.exe
           build/*.exe
+          desktop/out/*.exe
+          out/*.exe
