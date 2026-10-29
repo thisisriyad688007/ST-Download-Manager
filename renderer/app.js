@@ -59,7 +59,7 @@ const retryConnection = element('button','button','Refresh browsers');
 retryConnection.type = 'button'; retryConnection.addEventListener('click',()=>openIntegration());
 automaticConnection.after(retryConnection);
 const installHelp = element('section');
-installHelp.append(element('p','','The browser extension adds “Download this video” buttons to web videos. It is included with Awesome Downloader. Follow these steps once for each browser you use.'));
+installHelp.append(element('p','','The browser extension adds “Download this video” buttons to web videos. It is included with ST Download Manager. Follow these steps once for each browser you use.'));
 const setupActions = element('div','transfer-buttons');
 for (const browser of ['Chrome','Edge','Brave','Opera']) {
   const button = element('button','button',`Open ${browser} extensions`); button.type = 'button';
@@ -69,13 +69,13 @@ for (const browser of ['Chrome','Edge','Brave','Opera']) {
 installHelp.append(setupActions);
 const steps = element('ol');
 for(const text of [
-  'Here in Awesome Downloader, click Copy extension folder path above. This copies the location of the included browser extension, not your download folder.',
+  'Here in ST Download Manager, click Copy extension folder path above. This copies the location of the included browser extension, not your download folder.',
   'Click the button for your browser above. The browser opens its Extensions page.',
   'On that browser page, turn on Developer mode. In Edge, you may need to expand the left menu to find it.',
   'Click Load unpacked on the Extensions page. A Windows folder selection window opens.',
   'In that folder selection window, press Ctrl+L to select its address bar at the top. Press Ctrl+V to paste the copied extension folder path, then press Enter. Do not paste into the browser’s web address bar or the Search box.',
   'Click Select Folder (or Select) in the Windows window. Select the extension folder itself; do not select an individual file or its icons subfolder.',
-  'Check that Awesome Downloader Integration appears on the browser’s Extensions page and is switched on. Return here and wait for the connection message, then refresh your video page and play the video.'
+  'Check that ST Download Manager Integration appears on the browser’s Extensions page and is switched on. Return here and wait for the connection message, then refresh your video page and play the video.'
 ]) steps.append(element('li','',text));
 const extensionFolderLabel=element('label','','Included browser extension folder:');extensionFolderLabel.htmlFor='extension-path';
 const extensionFolderInput = $('#extension-path');
@@ -128,7 +128,7 @@ function duration(seconds) { return seconds < 60 ? `${Math.ceil(seconds)} sec` :
 function percentage(d) { return statusOf(d) === 'completed' ? 100 : numeric(d.total) ? Math.min(100,numeric(d.downloaded) / numeric(d.total) * 100) : d.streamProgress?.total ? d.streamProgress.completed/d.streamProgress.total*100 : null; }
 function messageOf(error) { return error?.message || String(error || 'The operation failed.'); }
 function notify(message,error = false) { clearTimeout(toastTimer); $('#toast-text').textContent = message; $('#toast').dataset.error = String(error); $('#toast').hidden = false; toastTimer = setTimeout(() => { $('#toast').hidden = true; },error ? 14000 : 7000); }
-async function call(method,...args) { if (!api || typeof api[method] !== 'function') throw new Error('The download service is unavailable. Restart Awesome Downloader.'); const result = await api[method](...args); if (result?.error && !result.downloads) throw new Error(typeof result.error === 'string' ? result.error : result.error.message || 'The request failed.'); return result; }
+async function call(method,...args) { if (!api || typeof api[method] !== 'function') throw new Error('The download service is unavailable. Restart ST Download Manager.'); const result = await api[method](...args); if (result?.error && !result.downloads) throw new Error(typeof result.error === 'string' ? result.error : result.error.message || 'The request failed.'); return result; }
 function acceptSnapshot(snapshot) { if (!snapshot || !Array.isArray(snapshot.downloads)) return; state = {downloads:snapshot.downloads,settings:snapshot.settings || state.settings,integration:snapshot.integration || state.integration}; const valid=new Set(state.downloads.map(d=>d.id)); for(const id of selectedIds)if(!valid.has(id))selectedIds.delete(id); if (!valid.has(selectedId)) selectedId = selectedIds.values().next().value || null; $('#download-list').setAttribute('aria-busy','false'); $('#connection-label').textContent = 'Connected'; render(); if (!$$('dialog[open]').length) { const review = progressMode && state.downloads.find(d => d.id === progressMode && d.needsReview && !dismissedReviews.has(d.id)); if (review) openReview(review.id); } }
 async function refresh() { acceptSnapshot(await call('snapshot')); }
 function selected() { return state.downloads.find(d => d.id === selectedId); }

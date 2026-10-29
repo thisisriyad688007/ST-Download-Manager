@@ -13,9 +13,9 @@ test('default bridge location is shared with browsers outside AppData virtualiza
   const root=await fs.mkdtemp(path.join(os.tmpdir(),'shared-bridge-'));
   t.after(()=>fs.rm(root,{recursive:true,force:true}));
   t.mock.method(os,'homedir',()=>root);
-  await fs.mkdir(path.join(root,'.awesome-downloader'));
+  await fs.mkdir(path.join(root,'.ST Download Manager'));
   const config={port:17843,token:'test-token-with-at-least-twenty-characters'};
-  await fs.writeFile(path.join(root,'.awesome-downloader','bridge.json'),JSON.stringify(config));
+  await fs.writeFile(path.join(root,'.ST Download Manager','bridge.json'),JSON.stringify(config));
   assert.deepEqual(readBridge(),config);
 });
 test('one-click intent is preserved only for an explicit boolean',()=>{

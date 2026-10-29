@@ -10,11 +10,11 @@ if ($Browser -eq 'Firefox') {
   if ($ExtensionId -notmatch '^[A-Za-z0-9@._{}-]+$') { throw 'Invalid Firefox extension ID.' }
 } elseif ($ExtensionId -notmatch '^[a-p]{32}$') { throw 'Chrome and Edge IDs must contain 32 letters a-p. Copy the ID from the extensions page.' }
 $hostName = 'com.awesome.downloader'
-$installDirectory = Join-Path $env:USERPROFILE '.awesome-downloader\NativeMessaging'
+$installDirectory = Join-Path $env:USERPROFILE '.ST Download Manager\NativeMessaging'
 New-Item -ItemType Directory -Path $installDirectory -Force | Out-Null
 $manifestName = if ($Browser -eq 'Opera') { 'Chrome' } else { $Browser }
 $manifestPath = Join-Path $installDirectory "$manifestName.json"
-$manifest = [ordered]@{ name=$hostName; description='Awesome Downloader browser bridge'; path=$resolvedHost; type='stdio' }
+$manifest = [ordered]@{ name=$hostName; description='ST Download Manager browser bridge'; path=$resolvedHost; type='stdio' }
 if ($Browser -eq 'Firefox') { $manifest.allowed_extensions = @($ExtensionId); $key = "HKCU:\Software\Mozilla\NativeMessagingHosts\$hostName" }
 elseif ($Browser -eq 'Edge') { $manifest.allowed_origins = @("chrome-extension://$ExtensionId/"); $key = "HKCU:\Software\Microsoft\Edge\NativeMessagingHosts\$hostName" }
 elseif ($Browser -eq 'Brave') { $manifest.allowed_origins = @("chrome-extension://$ExtensionId/"); $key = "HKCU:\Software\BraveSoftware\Brave-Browser\NativeMessagingHosts\$hostName" }

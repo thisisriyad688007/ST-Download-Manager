@@ -29,7 +29,7 @@ async function registerBrowser({ browser, extensionId }, { dataDirectory, integr
   // therefore one allow-list manifest instead of replacing each other.
   const manifestName=browser==='Opera'?'Chrome':browser;
   const manifestPath = path.join(folder, `${manifestName}.json`);
-  const manifest = { name: host, description: 'Awesome Downloader browser bridge', path: path.join(integrationRoot, 'integration', 'native-host.exe'), type: 'stdio' };
+  const manifest = { name: host, description: 'ST Download Manager browser bridge', path: path.join(integrationRoot, 'integration', 'native-host.exe'), type: 'stdio' };
   if (spec.firefox) manifest.allowed_extensions = [extensionId];
   else manifest.allowed_origins = [`chrome-extension://${extensionId}/`];
   await fs.access(manifest.path);
@@ -83,7 +83,7 @@ async function connectInstalledBrowsers({ dataDirectory, integrationRoot, localA
             if(installed&&!ownExtension){
               const manifest=JSON.parse(await fs.readFile(path.join(installed,'manifest.json'),'utf8'));
               const background=await fs.readFile(path.join(installed,'background.js'),'utf8');
-              ownExtension=manifest.name==='Awesome Downloader Integration'&&manifest.background?.service_worker==='background.js'&&background.includes("const HOST = 'com.awesome.downloader'");
+              ownExtension=manifest.name==='ST Download Manager Integration'&&manifest.background?.service_worker==='background.js'&&background.includes("const HOST = 'com.awesome.downloader'");
             }
             if (ownExtension) ids.add(id);
           }

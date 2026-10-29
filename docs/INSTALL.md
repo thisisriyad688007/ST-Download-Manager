@@ -1,12 +1,12 @@
-# Install and use Awesome Downloader
+# Install and use ST Download Manager
 
 ## Download
 
 Windows 10/11, 64-bit Intel/AMD PCs are the intended target. Native ARM builds
 are not provided. This is preview software; YouTube speed and compatibility vary.
 
-Open the project's [Windows preview release](https://github.com/Ahmadkhattak1/awesome-downloader/releases/tag/v0.1.0-preview.5)
-and download **Awesome-Downloader-Setup.exe** from Assets. You do not need a GitHub
+Open the project's [Windows preview release](https://github.com/Swap Tech/ST Download Manager/releases/tag/v0.1.0-preview.5)
+and download **ST Download Manager-Setup.exe** from Assets. You do not need a GitHub
 account, Git, Node.js, or a terminal to install the application. Do not download
 the automatically generated "Source code" archives to install it.
 
@@ -14,7 +14,7 @@ The installer is currently unsigned. Windows may show an unknown-publisher
 warning. Do not disable antivirus or other security protections; check the source
 of your download and the release's SHA-256 checksum before deciding to run it.
 
-Run the installer and follow the wizard. Launch **Awesome Downloader** from the
+Run the installer and follow the wizard. Launch **ST Download Manager** from the
 Start menu. Keep the app installed at its chosen location so browser integration
 can find it.
 
@@ -27,7 +27,7 @@ add it once to each browser you use:
 
 1. The app shows **Browser integration** on first launch. You can also open it
    from the toolbar later.
-2. In **Awesome Downloader**, click **Copy extension folder path**. This copies
+2. In **ST Download Manager**, click **Copy extension folder path**. This copies
    the location of the extension that came with the app. It is **not** the folder
    where your downloaded videos will be saved.
 3. Click the extensions button for **Chrome**, **Edge**, **Brave**, or **Opera** in the app.
@@ -46,10 +46,10 @@ add it once to each browser you use:
 7. Click **Select Folder** (some versions say **Select**) at the bottom of that
    Windows window. Choose the **extension folder itself**, not a file inside it
    and not its `icons` subfolder.
-8. The browser's Extensions page should now show **Awesome Downloader
+8. The browser's Extensions page should now show **ST Download Manager
    Integration**. Make sure its switch is on. Leave Developer mode on while using
    this unpacked preview extension.
-9. Return to Awesome Downloader. The Browser integration panel checks
+9. Return to ST Download Manager. The Browser integration panel checks
    automatically and shows the browser connection message. No extension ID or
    commands need to be entered.
 10. Return to the video website, refresh the page, and play the video briefly.
@@ -60,7 +60,7 @@ add it once to each browser you use:
 The exact location for your computer is displayed under **Included browser
 extension folder** in the app. A normal installed copy uses:
 
-`C:\Users\YOUR-WINDOWS-USERNAME\.awesome-downloader\BrowserIntegration\extension`
+`C:\Users\YOUR-WINDOWS-USERNAME\.ST Download Manager\BrowserIntegration\extension`
 
 That path is an example; **Copy extension folder path** copies your actual path
 with your own Windows username. **Show extension folder** opens that folder in
@@ -71,7 +71,7 @@ Do not move or delete this folder after loading it into your browser.
 ### If setup does not work
 
 - **“Manifest file is missing or unreadable”:** Cancel the folder selection and
-  click **Show extension folder** in Awesome Downloader. Confirm that the opened
+  click **Show extension folder** in ST Download Manager. Confirm that the opened
   folder contains `manifest.json`. Return to the Extensions page, choose **Load
   unpacked**, and select that exact opened `extension` folder—not the app's
   installation folder, Downloads, `manifest.json` itself, or the `icons` folder.
@@ -109,5 +109,5 @@ Quit the app before installing a newer release. After updating, reload the
 extension on the browser's extensions page and refresh your video tabs.
 
 Uninstall through Windows **Settings → Apps**. Remove the browser extension
-separately. Downloads and the `.awesome-downloader` folder in your Windows user
+separately. Downloads and the `.ST Download Manager` folder in your Windows user
 folder are not automatically deleted. There is no automatic updater yet.

@@ -5,10 +5,10 @@ if (process.argv.includes('--native-host')) {
   require('../integration/native-host.cjs').runNativeHost();
 } else {
   const { app, BrowserWindow, ipcMain, dialog, shell, clipboard, Tray, Menu, nativeImage, Notification } = require('electron');
-  app.setName('Awesome Downloader');
+  app.setName('ST Download Manager');
   // AppData writes can be virtualized when launched by an MSIX development app.
   // Chrome launched normally must see the same connector, bridge, and history.
-  const sharedDataDirectory = path.join(app.getPath('home'), '.awesome-downloader');
+  const sharedDataDirectory = path.join(app.getPath('home'), '.ST Download Manager');
   require('node:fs').mkdirSync(sharedDataDirectory, {recursive:true});
   app.setPath('userData', sharedDataDirectory);
   const locked = app.requestSingleInstanceLock();
@@ -22,7 +22,7 @@ if (process.argv.includes('--native-host')) {
       const fs = require('node:fs/promises');
       const history = path.join(sharedDataDirectory, 'downloads.json');
       try {
-        await fs.copyFile(path.join(app.getPath('appData'), 'Awesome Downloader', 'downloads.json'), history, require('node:fs').constants.COPYFILE_EXCL);
+        await fs.copyFile(path.join(app.getPath('appData'), 'ST Download Manager', 'downloads.json'), history, require('node:fs').constants.COPYFILE_EXCL);
       } catch (error) { if (!['ENOENT','EEXIST'].includes(error.code)) throw error; }
       const { DownloadEngine } = await import('../core/engine.mjs');
       const { startBridge } = await import('../core/bridge.mjs');
@@ -132,7 +132,7 @@ if (process.argv.includes('--native-host')) {
       ipcMain.handle('downloader:closeProgress',event=>{for(const progress of progressWindows.values())if(event.senderFrame===progress.webContents.mainFrame){progress.close();break;}});
       ipcMain.handle('downloader:resizeProgress',(event,{expanded}={})=>{for(const progress of progressWindows.values())if(event.senderFrame===progress.webContents.mainFrame){const remembered=progressWindowSizes.get(progress)||{expanded:{width:565,height:485}},[width,height]=progress.getSize();if(expanded){progress.setMinimumSize(540,440);progress.setSize(Math.max(540,remembered.expanded.width),Math.max(440,remembered.expanded.height),true);}else{if(height>360)remembered.expanded={width,height};progressWindowSizes.set(progress,remembered);progress.setMinimumSize(540,325);progress.setSize(Math.max(540,width),340,true);}return;}});
       window = new BrowserWindow({ show: !process.argv.includes('--browser-download'), width: 805, height: 465, minWidth: 760, minHeight: 450,
-        title: 'Awesome Downloader', icon: appIconPath, backgroundColor: '#f0f0f0', autoHideMenuBar: false,
+        title: 'ST Download Manager', icon: appIconPath, backgroundColor: '#f0f0f0', autoHideMenuBar: false,
         webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true } });
       window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
       window.webContents.on('will-navigate', event => event.preventDefault());
@@ -164,7 +164,7 @@ if (process.argv.includes('--native-host')) {
         { label: 'File', submenu: [ { label: 'Download properties…', click: command('details') }, { label: 'Remove selected', accelerator: 'Delete', click: command('remove') }, { label: 'Remove completed downloads', click: command('removeCompleted') } ] },
         { label: 'Downloads', submenu: [ { label: 'Pause all', click: command('pauseAll') }, { label: 'Stop all', click: command('pauseAll') }, { type: 'separator' }, { label: 'Delete all completed', click: command('removeCompleted') }, { type: 'separator' }, { label: 'Find', accelerator: 'CmdOrCtrl+F', click: command('find') }, { type: 'separator' }, { label: 'Scheduler…', click: command('scheduler') }, { label: 'Start queue', click: command('resumeAll') }, { label: 'Stop queue', click: command('pauseAll') }, { label: 'Speed limiter…', click: command('settings') }, { type: 'separator' }, { label: 'Options…', click: command('settings') } ] },
         { label: 'View', submenu: [ { label: 'All downloads', click: command('all') }, { role: 'togglefullscreen' }, { type: 'separator' }, { role: 'zoomIn' }, { role: 'zoomOut' }, { role: 'resetZoom' } ] },
-        { label: 'Help', submenu: [ { label: 'Browser integration…', click: command('integration') }, { label: 'About Awesome Downloader', click: () => dialog.showMessageBox(window, { title: 'About Awesome Downloader', message: 'Awesome Downloader 0.1.0', detail: 'Windows download manager with browser integration. Original implementation inspired by IDM. Full IDM feature parity is in development.' }) } ] }
+        { label: 'Help', submenu: [ { label: 'Browser integration…', click: command('integration') }, { label: 'About ST Download Manager', click: () => dialog.showMessageBox(window, { title: 'About ST Download Manager', message: 'ST Download Manager 0.1.0', detail: 'Windows download manager with browser integration. Original implementation inspired by IDM. Full IDM feature parity is in development.' }) } ] }
       ]));
       engine.on('change', () => {
         const data=snapshot();
@@ -184,13 +184,13 @@ if (process.argv.includes('--native-host')) {
       });
       const icon = nativeImage.createFromPath(appIconPath).resize({width:16,height:16});
       tray = new Tray(icon);
-      tray.setToolTip('Awesome Downloader');
+      tray.setToolTip('ST Download Manager');
       tray.setContextMenu(Menu.buildFromTemplate([{ label: 'Show downloads', click: () => window.show() }, { label: 'Quit', click: () => app.quit() }]));
       tray.on('double-click', () => window.show());
       window.on('minimize', dismissBrowserIntegration);
       window.on('close', event => { if (!quitting) { event.preventDefault(); dismissBrowserIntegration(); window.hide(); } });
       app.on('activate', () => window.show());
-    }).catch(error => { dialog.showErrorBox('Awesome Downloader could not start', error.stack || error.message); quitting = true; app.quit(); });
+    }).catch(error => { dialog.showErrorBox('ST Download Manager could not start', error.stack || error.message); quitting = true; app.quit(); });
     app.on('before-quit', event => {
       if (quitting) return;
       event.preventDefault(); quitting = true;

@@ -1,6 +1,6 @@
 # Contributor start here
 
-Awesome Downloader is an early Windows x64 preview. Downloads and Chrome/Edge
+ST Download Manager is an early Windows x64 preview. Downloads and Chrome/Edge
 integration exist, but reliability, sustained speed and user experience still
 need work. Linux, macOS, Windows ARM64, broader browser support and playlists are
 approved development goals, not released capabilities.
@@ -19,7 +19,7 @@ merge. Propose additional features in an issue before implementing them.
 ## Pick your first task
 
 1. Read the relevant goal and its acceptance criteria in the
-   [issue backlog](https://github.com/Ahmadkhattak1/awesome-downloader/issues).
+   [issue backlog](https://github.com/Swap Tech/ST Download Manager/issues).
 2. Choose a concrete implementation step. Check its prerequisites, existing PRs
    and comments so you do not duplicate another contributor's work.
 3. Comment with the step you want to take, your approach, and how you will test
@@ -54,11 +54,11 @@ prerequisite is ready.
 
 | Goal | Implementation order |
 | --- | --- |
-| [Linux #6](https://github.com/Ahmadkhattak1/awesome-downloader/issues/6) | Shared adapters #14 → runtime/integration #22 → packaging/validation #23 |
-| [macOS #7](https://github.com/Ahmadkhattak1/awesome-downloader/issues/7) | Shared adapters #14 → runtime/integration #24 → packaging/validation #25 |
-| [Windows ARM64 #8](https://github.com/Ahmadkhattak1/awesome-downloader/issues/8) | Shared adapters #14 → runtime/dependencies #26 → installer/hardware validation #27 |
-| [Firefox #10](https://github.com/Ahmadkhattak1/awesome-downloader/issues/10) | Capture/integration #28 → persistent installation/setup #29 |
-| [YouTube playlists #21](https://github.com/Ahmadkhattak1/awesome-downloader/issues/21) | Discovery/model #30 → selection/queue/batch controls #31 |
+| [Linux #6](https://github.com/Swap Tech/ST Download Manager/issues/6) | Shared adapters #14 → runtime/integration #22 → packaging/validation #23 |
+| [macOS #7](https://github.com/Swap Tech/ST Download Manager/issues/7) | Shared adapters #14 → runtime/integration #24 → packaging/validation #25 |
+| [Windows ARM64 #8](https://github.com/Swap Tech/ST Download Manager/issues/8) | Shared adapters #14 → runtime/dependencies #26 → installer/hardware validation #27 |
+| [Firefox #10](https://github.com/Swap Tech/ST Download Manager/issues/10) | Capture/integration #28 → persistent installation/setup #29 |
+| [YouTube playlists #21](https://github.com/Swap Tech/ST Download Manager/issues/21) | Discovery/model #30 → selection/queue/batch controls #31 |
 
 The shared adapters are one task, not three copies. After #14 is merged and
 validated, Linux, macOS and ARM64 implementation can proceed in parallel.

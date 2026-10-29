@@ -165,7 +165,7 @@ api.runtime.onInstalled.addListener(async () => {
     const current=await api.storage.local.get('interceptDownloads');
     if(current.interceptDownloads===undefined)await api.storage.local.set({interceptDownloads:true});
     await api.contextMenus.removeAll();
-    api.contextMenus.create({id: 'awesome-link', title: 'Download with Awesome Downloader', contexts: ['link', 'video', 'audio']});
+    api.contextMenus.create({id: 'awesome-link', title: 'Download with ST Download Manager', contexts: ['link', 'video', 'audio']});
     api.contextMenus.create({id: 'awesome-page', title: 'Find downloadable links on this page', contexts: ['page']});
   } catch (error) { await api.storage.local.set({lastError: error.message}); }
 });
@@ -250,6 +250,6 @@ api.downloads.onCreated.addListener(async item => {
     await api.downloads.cancel(item.id);
   } catch (e) {
     if(paused&&!accepted)await api.downloads.resume(item.id).catch(()=>{});
-    await api.storage.local.set({lastError:accepted?`The browser download could not be canceled; Awesome Downloader continues the transfer: ${e.message}`:`Browser download was kept: ${e.message}`});
+    await api.storage.local.set({lastError:accepted?`The browser download could not be canceled; ST Download Manager continues the transfer: ${e.message}`:`Browser download was kept: ${e.message}`});
   }
 });

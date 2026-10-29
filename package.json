@@ -1,12 +1,12 @@
 {
-  "name": "awesome-downloader",
+  "name": "ST Download Manager",
   "version": "0.1.0",
   "description": "A Windows download manager with segmented transfers and browser video capture",
   "main": "desktop/main.cjs",
   "private": true,
-  "repository": { "type": "git", "url": "https://github.com/Ahmadkhattak1/awesome-downloader.git" },
-  "bugs": { "url": "https://github.com/Ahmadkhattak1/awesome-downloader/issues" },
-  "author": "Awesome Downloader contributors",
+  "repository": { "type": "git", "url": "https://github.com/Swap Tech/ST Download Manager.git" },
+  "bugs": { "url": "https://github.com/Swap Tech/ST Download Manager/issues" },
+  "author": "ST Download Manager contributors",
   "license": "MIT",
   "scripts": {
     "start": "electron .",
@@ -22,7 +22,7 @@
   },
   "build": {
     "appId": "com.awesomedownloader.desktop",
-    "productName": "Awesome Downloader",
+    "productName": "ST Download Manager",
     "directories": {
       "output": "release"
     },
@@ -81,7 +81,7 @@
       "signExecutable": false
     },
     "portable": {
-      "artifactName": "Awesome-Downloader-${version}-Windows.exe"
+      "artifactName": "ST Download Manager-${version}-Windows.exe"
     },
     "nsis": {
       "oneClick": false,
@@ -89,8 +89,8 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Awesome Downloader",
-      "artifactName": "Awesome-Downloader-Setup.exe"
+      "shortcutName": "ST Download Manager",
+      "artifactName": "ST Download Manager-Setup.exe"
     }
   },
   "dependencies": {

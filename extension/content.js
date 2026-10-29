@@ -87,7 +87,7 @@
               row.onclick=async event=>{
                 event.preventDefault();event.stopPropagation();row.disabled=true;
                 hint.textContent='Opening download options…';
-                try{const response=await send({action:'download',item:{...item,startNow:false}});hint.textContent=response.ok?'Download opened in Awesome Downloader. Choose Start Download or Download Later there. An active download is opened instead of duplicated.':friendlyError(response.error);}catch(error){hint.textContent=friendlyError(error.message);}
+                try{const response=await send({action:'download',item:{...item,startNow:false}});hint.textContent=response.ok?'Download opened in ST Download Manager. Choose Start Download or Download Later there. An active download is opened instead of duplicated.':friendlyError(response.error);}catch(error){hint.textContent=friendlyError(error.message);}
                 row.disabled=!!item.unsupported;
               };chooser.append(row);
             }); position();
@@ -98,7 +98,7 @@
     }
     position();
   }
-  function friendlyError(message) { return /native messaging host not found/i.test(message || '') ? 'Chrome cannot find the desktop connector. Open Awesome Downloader → Browser Integration → Refresh browsers, then reload this extension and page. Details: '+message : message; }
+  function friendlyError(message) { return /native messaging host not found/i.test(message || '') ? 'Chrome cannot find the desktop connector. Open ST Download Manager → Browser Integration → Refresh browsers, then reload this extension and page. Details: '+message : message; }
   function closeChoosers(except) {
     for(const record of records){
       if(record===except)continue;

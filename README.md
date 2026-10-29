@@ -1,4 +1,4 @@
-# Awesome Downloader
+# ST Download Manager
 
 A Windows download manager with a compact desktop interface and browser video
 buttons. Original open-source implementation; not affiliated with Internet
@@ -9,8 +9,8 @@ without sharing session tokens or signed media links.
 
 ## Just want to use it?
 
-Download **Awesome-Downloader-Setup.exe** from the project's
-[Windows preview release](https://github.com/Ahmadkhattak1/awesome-downloader/releases/tag/v0.1.0-preview.4),
+Download **ST Download Manager-Setup.exe** from the project's
+[Windows preview release](https://github.com/Swap Tech/ST Download Manager/releases/tag/v0.1.0-preview.4),
 then see the [installation and usage guide](docs/INSTALL.md). It is a normal
 Windows installer with Start-menu and
 desktop shortcuts. No GitHub account, Node.js, or developer tools are needed for
@@ -69,7 +69,7 @@ installer testing, browser-store packaging, and accessibility.
 
 Media request credentials are held in memory, not stored in download history.
 History and browser-integration configuration are stored locally in
-`%USERPROFILE%\.awesome-downloader`. The bridge is authenticated and loopback-only.
+`%USERPROFILE%\.ST Download Manager`. The bridge is authenticated and loopback-only.
 Do not publish this directory or browser profiles in issues.
 
 Original project code is [MIT licensed](LICENSE). Third-party components retain

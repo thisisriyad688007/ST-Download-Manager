@@ -6,7 +6,7 @@ $extensionRoot = Join-Path $projectRoot 'extension'
 $manifest = Get-Content -LiteralPath (Join-Path $extensionRoot 'manifest.json') -Raw | ConvertFrom-Json
 $outputDirectory = Join-Path $projectRoot 'release-extension'
 New-Item -ItemType Directory -Path $outputDirectory -Force | Out-Null
-$archivePath = Join-Path $outputDirectory "Awesome-Downloader-Extension-$($manifest.version).zip"
+$archivePath = Join-Path $outputDirectory "ST Download Manager-Extension-$($manifest.version).zip"
 Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $archiveStream = [System.IO.File]::Open($archivePath, [System.IO.FileMode]::Create)
