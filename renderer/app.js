@@ -321,22 +321,6 @@ $('#add-form').addEventListener('submit',async event => {
   const errorElement = $('#add-error'); errorElement.hidden = true;
   const rawUrl = ($('#download-urls').value || '').trim();
     if (rawUrl.includes('youtube.com') || rawUrl.includes('youtu.be')) {
-      const res = await window.askVideoQuality(rawUrl);
-      if (!res || !res.ok) return;
-      if ($('#download-category')) {
-        $('#download-category').value = res.isAudio ? 'Music' : 'Video';
-      }
-    } else if ($('#download-category')) {
-      const urlPart = rawUrl.split('?')[0].split('#')[0];
-      const ext = (urlPart.split('.').pop() || '').toLowerCase();
-      if (['zip', 'rar', '7z', 'tar', 'gz', 'iso'].includes(ext)) $('#download-category').value = 'Compressed';
-      else if (['pdf', 'docx', 'doc', 'xlsx', 'pptx', 'txt'].includes(ext)) $('#download-category').value = 'Documents';
-      else if (['exe', 'msi', 'apk', 'dmg', 'deb'].includes(ext)) $('#download-category').value = 'Programs';
-      else if (['mp4', 'mkv', 'webm', 'flv', 'avi'].includes(ext)) $('#download-category').value = 'Video';
-      else if (['mp3', 'm4a', 'aac', 'flac', 'wav'].includes(ext)) $('#download-category').value = 'Music';
-    }
-    const rawUrl = ($('#download-urls').value || '').trim();
-    if (rawUrl.includes('youtube.com') || rawUrl.includes('youtu.be')) {
       const q = await window.promptVideoQuality(rawUrl);
       if (!q) return;
       if ($('#download-category')) {
