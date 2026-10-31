@@ -10,7 +10,7 @@
     padding: 16px 20px;
     background: #f0f0f0;
     color: #1a1a1a;
-    width: 520px;
+    width: 540px;
     max-width: 92vw;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     font-family: "Segoe UI", Arial, sans-serif;
@@ -31,17 +31,16 @@
       </div>
       <span style="color:#555;">Check videos to download</span>
     </div>
-    <div id="st-pl-list" style="max-height:220px;overflow-y:auto;background:#fff;border:1px solid #abadb3;border-radius:4px;padding:6px;margin-bottom:14px;">
-      <div style="padding:10px;text-align:center;color:#666;font-size:12px;">Loading items...</div>
+    <div id="st-pl-list" style="max-height:200px;overflow-y:auto;background:#fff;border:1px solid #abadb3;border-radius:4px;padding:6px;margin-bottom:12px;">
+      <div style="padding:10px;text-align:center;color:#666;font-size:12px;">Scanning playlist items...</div>
     </div>
-    <div style="margin-bottom:14px;display:flex;align-items:center;gap:10px;background:#e9e9e9;padding:8px 12px;border-radius:4px;border:1px solid #ccc;">
-      <label style="font-size:12px;font-weight:600;color:#333;white-space:nowrap;">Download Quality / Format:</label>
-      <select id="st-pl-quality" style="flex:1;padding:5px 8px;background:#fff;border:1px solid #abadb3;border-radius:3px;font-size:12px;outline:none;">
-        <option value="bestvideo[height<=1080]+bestaudio/best">1080p Full HD Video</option>
-        <option value="bestvideo[height<=720]+bestaudio/best" selected>720p HD Video</option>
-        <option value="bestvideo[height<=480]+bestaudio/best">480p Video</option>
-        <option value="bestvideo[height<=360]+bestaudio/best">360p Video</option>
-        <option value="bestaudio/best" data-audio="true">Audio Only (MP3/M4A)</option>
+    <div style="margin-bottom:14px;background:#e9e9e9;padding:8px 12px;border-radius:4px;border:1px solid #ccc;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <label style="font-size:12px;font-weight:600;color:#333;">Available Formats (Live from video):</label>
+        <span id="st-pl-q-status" style="font-size:11px;color:#666;">Fetching formats...</span>
+      </div>
+      <select id="st-pl-quality" style="width:100%;padding:5px 8px;background:#fff;border:1px solid #abadb3;border-radius:3px;font-size:12px;outline:none;">
+        <option>Loading original video qualities...</option>
       </select>
     </div>
     <div style="display:flex;justify-content:flex-end;gap:10px;">
@@ -57,6 +56,8 @@ window.promptPlaylistVideos = async function(playlistUrl) {
   const title = document.getElementById('st-pl-title');
   const countSpan = document.getElementById('st-pl-count');
   const list = document.getElementById('st-pl-list');
+  const qSelect = document.getElementById('st-pl-quality');
+  const qStatus = document.getElementById('st-pl-q-status');
   const btnToggle = document.getElementById('st-pl-toggle-all');
   const btnDl = document.getElementById('st-pl-download');
   const btnCancel = document.getElementById('st-pl-cancel');
@@ -64,8 +65,35 @@ window.promptPlaylistVideos = async function(playlistUrl) {
   title.textContent = 'Fetching playlist details...';
   countSpan.textContent = '';
   list.innerHTML = '<div style="padding:10px;text-align:center;color:#666;font-size:12px;">Scanning playlist items...</div>';
+  qStatus.textContent = 'Waiting for playlist...';
+  qSelect.innerHTML = '<option>Please wait...</option>';
   btnDl.disabled = true;
   dlg.showModal();
+
+  async function loadFormatsForUrl(targetUrl) {
+    qStatus.textContent = 'Inspecting video formats...';
+    qSelect.innerHTML = '<option>Loading video qualities...</option>';
+    try {
+      const qRes = await call('fetchResolutions', targetUrl);
+      if (qRes && qRes.ok && qRes.formats && qRes.formats.length > 0) {
+        qSelect.innerHTML = '';
+        qRes.formats.forEach(f => {
+          const opt = document.createElement('option');
+          opt.value = f.id;
+          opt.textContent = f.label;
+          opt.dataset.isAudio = f.isAudio ? 'true' : 'false';
+          qSelect.appendChild(opt);
+        });
+        qStatus.textContent = 'Formats loaded';
+      } else {
+        qSelect.innerHTML = '<option value="bestvideo+bestaudio/best">Best Available Video</option><option value="bestaudio/best" data-is-audio="true">Audio Only (MP3)</option>';
+        qStatus.textContent = 'Default formats';
+      }
+    } catch (e) {
+      qSelect.innerHTML = '<option value="bestvideo+bestaudio/best">Best Available Video</option><option value="bestaudio/best" data-is-audio="true">Audio Only (MP3)</option>';
+      qStatus.textContent = 'Default formats';
+    }
+  }
 
   return new Promise(async (resolve) => {
     btnCancel.onclick = () => { dlg.close(); resolve(null); };
@@ -77,14 +105,22 @@ window.promptPlaylistVideos = async function(playlistUrl) {
         countSpan.textContent = res.items.length + ' videos found';
         list.innerHTML = '';
 
-        res.items.forEach((item) => {
+        res.items.forEach((item, idx) => {
           const row = document.createElement('label');
           row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:5px 6px;border-bottom:1px solid #f0f0f0;cursor:pointer;font-size:12px;';
           row.innerHTML = `<input type="checkbox" class="st-pl-chk" value="${item.url}" checked style="cursor:pointer;" />
                            <span style="color:#555;font-weight:600;width:24px;">#${item.index}</span>
                            <span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${item.title}">${item.title}</span>`;
+          row.addEventListener('click', (ev) => {
+            if (ev.target.tagName !== 'INPUT') {
+              loadFormatsForUrl(item.url);
+            }
+          });
           list.appendChild(row);
         });
+
+        // তালিকার প্রথম ভিডিওর আসল কোয়ালিটি ফেচ করা
+        await loadFormatsForUrl(res.items[0].url);
 
         btnDl.disabled = false;
         let allChecked = true;
@@ -96,8 +132,8 @@ window.promptPlaylistVideos = async function(playlistUrl) {
         btnDl.onclick = () => {
           const selected = [];
           list.querySelectorAll('.st-pl-chk:checked').forEach(cb => selected.push(cb.value));
-          const qSelect = document.getElementById('st-pl-quality');
-          const isAudio = qSelect.selectedOptions[0]?.dataset?.audio === 'true';
+          const opt = qSelect.selectedOptions[0];
+          const isAudio = opt ? opt.dataset.isAudio === 'true' : false;
           const formatVal = qSelect.value;
           dlg.close();
           resolve(selected.length > 0 ? { urls: selected, format: formatVal, isAudio: isAudio } : null);
@@ -112,45 +148,6 @@ window.promptPlaylistVideos = async function(playlistUrl) {
     }
   });
 };
-
-// --- Quality Selector Modal ---
-(function initModal() {
-  if (document.getElementById('st-quality-dlg')) return;
-  const dlg = document.createElement('dialog');
-  dlg.id = 'st-quality-dlg';
-  dlg.style.cssText = `
-    border: 1px solid #707070;
-    border-radius: 6px;
-    padding: 16px 20px;
-    background: #f0f0f0;
-    color: #1a1a1a;
-    width: 440px;
-    max-width: 90vw;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-    font-family: "Segoe UI", Arial, sans-serif;
-    outline: none;
-    z-index: 100000;
-  `;
-  dlg.innerHTML = `
-    <div style="display:flex;align-items:center;margin-bottom:12px;border-bottom:1px solid #d0d0d0;padding-bottom:8px;">
-      <span style="font-weight:600;font-size:14px;color:#222;">Select Video / Audio Quality</span>
-    </div>
-    <div style="margin-bottom:14px;">
-      <label style="display:block;font-size:11px;color:#666;margin-bottom:4px;">Title:</label>
-      <div id="st-q-title" style="font-size:12px;font-weight:600;color:#0b57d0;background:#fff;border:1px solid #ccc;padding:6px 10px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Loading video info...</div>
-    </div>
-    <div style="margin-bottom:18px;">
-      <label style="display:block;font-size:12px;font-weight:500;color:#333;margin-bottom:6px;">Available Resolutions & Formats:</label>
-      <select id="st-q-select" style="width:100%;padding:7px 10px;background:#ffffff;color:#222;border:1px solid #abadb3;border-radius:4px;outline:none;font-size:13px;cursor:pointer;box-sizing:border-box;"></select>
-    </div>
-    <div style="display:flex;justify-content:flex-end;gap:10px;">
-      <button id="st-q-cancel" type="button" style="min-width:75px;padding:6px 14px;background:#e1e1e1;color:#222;border:1px solid #adadad;border-radius:3px;font-size:12px;cursor:pointer;">Cancel</button>
-      <button id="st-q-download" type="button" style="min-width:85px;padding:6px 16px;background:#0067c0;color:#ffffff;border:1px solid #005fb8;border-radius:3px;font-size:12px;font-weight:600;cursor:pointer;">Download</button>
-    </div>
-  `;
-  document.body.appendChild(dlg);
-})();
-
 window.promptVideoQuality = async function(url) {
   const dlg = document.getElementById('st-quality-dlg');
   const title = document.getElementById('st-q-title');
