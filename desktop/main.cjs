@@ -8,7 +8,7 @@ async function checkForUpdates(win) {
     });
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
-    const currentVersion = "v0.1.0";
+    const currentVersion = "v" + app.getVersion();
     const latestVersion = data.tag_name || data.name || "";
     
     if (latestVersion && latestVersion !== currentVersion) {
@@ -213,7 +213,7 @@ if (process.argv.includes('--native-host')) {
         { label: 'File', submenu: [ { label: 'Download properties…', click: command('details') }, { label: 'Remove selected', accelerator: 'Delete', click: command('remove') }, { label: 'Remove completed downloads', click: command('removeCompleted') } ] },
         { label: 'Downloads', submenu: [ { label: 'Pause all', click: command('pauseAll') }, { label: 'Stop all', click: command('pauseAll') }, { type: 'separator' }, { label: 'Delete all completed', click: command('removeCompleted') }, { type: 'separator' }, { label: 'Find', accelerator: 'CmdOrCtrl+F', click: command('find') }, { type: 'separator' }, { label: 'Scheduler…', click: command('scheduler') }, { label: 'Start queue', click: command('resumeAll') }, { label: 'Stop queue', click: command('pauseAll') }, { label: 'Speed limiter…', click: command('settings') }, { type: 'separator' }, { label: 'Options…', click: command('settings') } ] },
         { label: 'View', submenu: [ { label: 'All downloads', click: command('all') }, { role: 'togglefullscreen' }, { type: 'separator' }, { role: 'zoomIn' }, { role: 'zoomOut' }, { role: 'resetZoom' } ] },
-        { label: 'Help', submenu: [ { label: 'Check for updates…', click: (menuItem, browserWindow) => checkForUpdates(browserWindow) }, { type: 'separator' }, { label: 'Browser integration…', click: command('integration') }, { label: 'About ST Download Manager', click: () => dialog.showMessageBox(window, { title: 'About ST Download Manager', message: 'ST Download Manager 0.1.0', detail: 'Windows download manager with browser integration. Original implementation inspired by IDM. Full IDM feature parity is in development.' }) } ] }
+        { label: 'Help', submenu: [ { label: 'Check for updates…', click: (menuItem, browserWindow) => checkForUpdates(browserWindow) }, { type: 'separator' }, { label: 'Browser integration…', click: command('integration') }, { label: 'About ST Download Manager', click: () => dialog.showMessageBox(window, { title: 'About ST Download Manager', message: 'ST Download Manager v" + app.getVersion() + "', detail: 'Windows download manager with browser integration. Original implementation inspired by IDM. Full IDM feature parity is in development.' }) } ] }
       ]));
       engine.on('change', () => {
         const data=snapshot();
