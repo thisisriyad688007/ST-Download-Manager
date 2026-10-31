@@ -426,11 +426,11 @@ export class DownloadEngine extends EventEmitter {
         if (!ranged && segment.downloaded) { d.downloaded -= segment.downloaded; segment.downloaded = 0; await fs.writeFile(file, Buffer.alloc(0)); }
         const start = segment.start + segment.downloaded;
         const h = { ...headers };
-        if (ranged && !isCdnFullStream) { h.Range = `bytes=${start}-${segment.end}`; if (info.validator) h['If-Range'] = info.validator; }
+        if (ranged && response.statusCode === 206) { h.Range = `bytes=${start}-${segment.end}`; if (info.validator) h['If-Range'] = info.validator; }
         const response = await request(url, { headers: h, signal });
         // Facebook / CDN fallback: If server ignores range and returns 200 OK, accept as full stream
-        const isCdnFullStream = ranged && response.statusCode === 200;
-        if (!isCdnFullStream && ((ranged && response.statusCode !== 206) || (!ranged && response.statusCode !== 200))) {
+        
+        if (((ranged && response.statusCode !== 206) || (!ranged && response.statusCode !== 200))) {
           const status = response.statusCode; response.destroy();
           throw failure(`Server returned HTTP ${status}${ranged ? ' instead of a byte range' : ''}.`, transientStatus(status),
             status === 429 || status === 503 ? retryAfter(response.headers['retry-after']) : null);
