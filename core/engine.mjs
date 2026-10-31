@@ -1,10 +1,11 @@
 
 async function ensureActualMp3(filePath) {
-  if (!filePath.toLowerCase().endsWith('.mp3')) return filePath;
+  if (!filePath || typeof filePath !== 'string' || !filePath.toLowerCase().endsWith('.mp3')) return filePath;
   const tempPath = filePath + '.raw.tmp';
   try {
+    if (!await fs.stat(filePath).then(() => true).catch(() => false)) return filePath;
     await fs.rename(filePath, tempPath);
-    const exe = ffmpegPath.replace('app.asar', 'app.asar.unpacked');
+    const exe = typeof ffmpegPath === 'string' ? ffmpegPath.replace('app.asar', 'app.asar.unpacked') : 'ffmpeg';
     await new Promise((resolve, reject) => {
       const proc = spawn(exe, ['-y', '-i', tempPath, '-vn', '-acodec', 'libmp3lame', '-q:a', '2', filePath], {
         windowsHide: true,
@@ -325,7 +326,7 @@ export class DownloadEngine extends EventEmitter {
       }
       await out.sync(); complete = true;
     } finally { await out.close(); if (!complete) await fs.unlink(destination); }
-    d.path = destination; d.filename = path.basename(destination); await ensureActualMp3(d.file); d.status = 'complete';
+    d.path = destination; d.filename = path.basename(destination); if (d && (d.file || d.destination)) { try { await ensureActualMp3(d.file || d.destination); } catch(e){} } d.status = 'complete';
     d.completedAt = new Date().toISOString();
     await this.persist();
     try { await fs.rm(dir, { recursive: true, force: true }); }
