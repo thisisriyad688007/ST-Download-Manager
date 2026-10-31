@@ -265,3 +265,49 @@ if (typeof stIpc !== 'undefined') {
     });
   });
 }
+
+
+// --- Downloader Fetch Resolutions Bridge ---
+const { ipcMain: coreIpc } = require('electron');
+const { spawn: coreSpawn } = require('child_process');
+const corePath = require('path');
+
+coreIpc.handle('downloader:fetchResolutions', async (event, videoUrl) => {
+  return new Promise((resolve) => {
+    try {
+      const isPackaged = require('electron').app.isPackaged;
+      const basePath = isPackaged 
+        ? corePath.join(process.resourcesPath, 'tools') 
+        : corePath.join(__dirname, '..', 'tools');
+      const ytdlp = corePath.join(basePath, 'yt-dlp.exe');
+
+      const proc = coreSpawn(ytdlp, ['--dump-single-json', '--no-playlist', videoUrl]);
+      let stdoutData = '';
+      
+      proc.stdout.on('data', (d) => { stdoutData += d.toString(); });
+      proc.on('close', (code) => {
+        if (code === 0) {
+          try {
+            const data = JSON.parse(stdoutData);
+            const formats = [];
+            formats.push({ id: 'bestaudio/best', label: 'Audio Only (MP3/M4A)', isAudio: true });
+            const seen = new Set();
+            (data.formats || []).forEach(f => {
+              const h = f.height || 0;
+              if (h >= 144 && !seen.has(h)) {
+                seen.add(h);
+                formats.push({
+                  id: 'bestvideo[height<=' + h + ']+bestaudio/best',
+                  label: h + 'p HD Video',
+                  isAudio: false
+                });
+              }
+            });
+            resolve({ ok: true, title: data.title, formats: formats });
+          } catch(e) { resolve({ ok: false }); }
+        } else { resolve({ ok: false }); }
+      });
+      proc.on('error', () => resolve({ ok: false }));
+    } catch(err) { resolve({ ok: false }); }
+  });
+});

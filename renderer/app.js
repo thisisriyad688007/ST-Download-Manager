@@ -1,3 +1,62 @@
+// --- Quality Selector Modal ---
+(function initModal() {
+  if (document.getElementById('st-quality-dlg')) return;
+  const dlg = document.createElement('dialog');
+  dlg.id = 'st-quality-dlg';
+  dlg.style.cssText = 'border:1px solid #0078d7;border-radius:6px;padding:16px;background:#1e1e1e;color:#fff;min-width:340px;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,0.6);';
+  dlg.innerHTML = '<h4 id="st-q-title" style="margin:0 0 10px 0;font-size:13px;color:#61afef;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:310px;">Loading video info...</h4>' +
+    '<div style="margin-bottom:12px;"><label style="display:block;margin-bottom:5px;font-size:11px;color:#aaa;">Select Resolution / Format:</label>' +
+    '<select id="st-q-select" style="width:100%;padding:6px;background:#2d2d2d;color:#fff;border:1px solid #444;border-radius:4px;outline:none;font-size:13px;"></select></div>' +
+    '<div style="display:flex;justify-content:flex-end;gap:8px;">' +
+    '<button id="st-q-cancel" type="button" style="padding:4px 10px;background:#444;color:#fff;border:none;border-radius:3px;cursor:pointer;">Cancel</button>' +
+    '<button id="st-q-download" type="button" style="padding:4px 12px;background:#0078d7;color:#fff;border:none;border-radius:3px;cursor:pointer;">Download</button></div>';
+  document.body.appendChild(dlg);
+})();
+
+window.promptVideoQuality = async function(url) {
+  const dlg = document.getElementById('st-quality-dlg');
+  const title = document.getElementById('st-q-title');
+  const select = document.getElementById('st-q-select');
+  const btnDl = document.getElementById('st-q-download');
+  const btnCancel = document.getElementById('st-q-cancel');
+
+  title.textContent = 'Fetching video formats...';
+  select.innerHTML = '<option>Loading formats...</option>';
+  btnDl.disabled = true;
+  dlg.showModal();
+
+  return new Promise(async (resolve) => {
+    btnCancel.onclick = () => { dlg.close(); resolve(null); };
+
+    try {
+      const res = await call('fetchResolutions', url);
+      if (res && res.ok && res.formats && res.formats.length > 0) {
+        title.textContent = res.title || 'Choose Quality';
+        select.innerHTML = '';
+        res.formats.forEach(f => {
+          const opt = document.createElement('option');
+          opt.value = f.id;
+          opt.textContent = f.label;
+          opt.dataset.isAudio = f.isAudio ? 'true' : 'false';
+          select.appendChild(opt);
+        });
+        btnDl.disabled = false;
+        btnDl.onclick = () => {
+          const opt = select.selectedOptions[0];
+          dlg.close();
+          resolve({ ok: true, format: opt.value, isAudio: opt.dataset.isAudio === 'true' });
+        };
+      } else {
+        dlg.close();
+        resolve({ ok: true, direct: true });
+      }
+    } catch(e) {
+      dlg.close();
+      resolve({ ok: true, direct: true });
+    }
+  });
+};
+
 // --- Quality Selector Modal Injection ---
 (function() {
   const dlg = document.createElement("dialog");
@@ -270,6 +329,22 @@ $('#add-form').addEventListener('submit',async event => {
     } else if ($('#download-category')) {
       const urlPart = rawUrl.split('?')[0].split('#')[0];
       const ext = (urlPart.split('.').pop() || '').toLowerCase();
+      if (['zip', 'rar', '7z', 'tar', 'gz', 'iso'].includes(ext)) $('#download-category').value = 'Compressed';
+      else if (['pdf', 'docx', 'doc', 'xlsx', 'pptx', 'txt'].includes(ext)) $('#download-category').value = 'Documents';
+      else if (['exe', 'msi', 'apk', 'dmg', 'deb'].includes(ext)) $('#download-category').value = 'Programs';
+      else if (['mp4', 'mkv', 'webm', 'flv', 'avi'].includes(ext)) $('#download-category').value = 'Video';
+      else if (['mp3', 'm4a', 'aac', 'flac', 'wav'].includes(ext)) $('#download-category').value = 'Music';
+    }
+    const rawUrl = ($('#download-urls').value || '').trim();
+    if (rawUrl.includes('youtube.com') || rawUrl.includes('youtu.be')) {
+      const q = await window.promptVideoQuality(rawUrl);
+      if (!q) return;
+      if ($('#download-category')) {
+        $('#download-category').value = q.isAudio ? 'Music' : 'Video';
+      }
+    } else if ($('#download-category')) {
+      const pureUrl = rawUrl.split('?')[0].split('#')[0];
+      const ext = (pureUrl.split('.').pop() || '').toLowerCase();
       if (['zip', 'rar', '7z', 'tar', 'gz', 'iso'].includes(ext)) $('#download-category').value = 'Compressed';
       else if (['pdf', 'docx', 'doc', 'xlsx', 'pptx', 'txt'].includes(ext)) $('#download-category').value = 'Documents';
       else if (['exe', 'msi', 'apk', 'dmg', 'deb'].includes(ext)) $('#download-category').value = 'Programs';
