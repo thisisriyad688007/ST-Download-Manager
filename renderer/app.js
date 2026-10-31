@@ -1,3 +1,61 @@
+
+// --- Quality Selector Modal Injection & Interceptor ---
+(function setupQualityModal() {
+  const modalHtml = `
+    <dialog id="quality-dialog" style="border:1px solid #0078d7;border-radius:6px;padding:18px;background:#2d2d2d;color:#fff;min-width:340px;box-shadow:0 10px 25px rgba(0,0,0,0.5);z-index:9999;">
+      <h4 id="quality-title" style="margin:0 0 12px 0;font-size:14px;color:#61afef;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:320px;">Fetching video info...</h4>
+      <div style="margin-bottom:12px;">
+        <label style="display:block;margin-bottom:6px;font-size:12px;color:#abb2bf;">Select Resolution:</label>
+        <select id="quality-select" style="width:100%;padding:6px;background:#1e1e1e;color:#fff;border:1px solid #444;border-radius:4px;outline:none;font-size:13px;"></select>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px;">
+        <button id="quality-cancel" type="button" style="padding:5px 12px;background:#3e4451;color:#fff;border:none;border-radius:4px;cursor:pointer;">Cancel</button>
+        <button id="quality-download" type="button" style="padding:5px 14px;background:#0078d7;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">Download</button>
+      </div>
+    </dialog>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+})();
+
+window.promptVideoQuality = async function(videoUrl) {
+  const dlg = document.querySelector('#quality-dialog');
+  const titleEl = document.querySelector('#quality-title');
+  const selectEl = document.querySelector('#quality-select');
+  const btnDl = document.querySelector('#quality-download');
+  const btnCancel = document.querySelector('#quality-cancel');
+
+  titleEl.textContent = 'Fetching available qualities...';
+  selectEl.innerHTML = '<option>Loading...</option>';
+  btnDl.disabled = true;
+  dlg.showModal();
+
+  return new Promise(async (resolve, reject) => {
+    btnCancel.onclick = () => { dlg.close(); reject(new Error('User cancelled')); };
+
+    try {
+      const info = await window.electronAPI.invoke('fetch-video-resolutions', videoUrl);
+      titleEl.textContent = info.title || 'Select Quality';
+      selectEl.innerHTML = '';
+      (info.formats || []).forEach(f => {
+        const opt = document.createElement('option');
+        opt.value = f.format_id;
+        opt.textContent = `${f.label} ${f.filesize ? ' (~' + (f.filesize/1048576).toFixed(1) + ' MB)' : ''}`;
+        selectEl.appendChild(opt);
+      });
+      btnDl.disabled = false;
+
+      btnDl.onclick = () => {
+        const chosen = selectEl.value;
+        dlg.close();
+        resolve(chosen);
+      };
+    } catch(err) {
+      dlg.close();
+      reject(err);
+    }
+  });
+};
+
 'use strict';
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];

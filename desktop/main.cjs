@@ -243,6 +243,7 @@ electronIpc.handle('get-video-info', async (event, videoUrl) => {
   });
 });
 
+
 // --- Video Quality Fetcher & Selected Downloader ---
 electronIpc.handle('fetch-video-resolutions', async (event, videoUrl) => {
   return new Promise((resolve, reject) => {
@@ -270,6 +271,7 @@ electronIpc.handle('fetch-video-resolutions', async (event, videoUrl) => {
             const height = f.height || 0;
             const ext = f.ext || 'mp4';
             const label = height > 0 ? (height + 'p (' + ext + ')') : (f.abr ? Math.round(f.abr) + ' kbps (Audio)' : null);
+            if (label && !seen.has(label)) {
               seen.add(label);
               formats.push({
                 format_id: f.format_id,
@@ -281,7 +283,6 @@ electronIpc.handle('fetch-video-resolutions', async (event, videoUrl) => {
             }
           });
           
-          // রেজোলিউশন বড় থেকে ছোট সাজানো
           formats.sort((a, b) => b.isVideo - a.isVideo);
           resolve({ title: info.title, thumbnail: info.thumbnail, formats: formats });
         } catch (e) {
