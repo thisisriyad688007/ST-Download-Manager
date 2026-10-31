@@ -321,7 +321,7 @@ export class DownloadEngine extends EventEmitter {
       for (const file of files) {
         const input = await fs.open(file, 'r');
         try {
-          for await (const chunk of input.createReadStream()) { signal.throwIfAborted(); await out.writeFile(chunk); }
+          for await (const chunk of input.createReadStream()) { signal.throwIfAborted(); await out.write(chunk); }
         } finally { await input.close(); }
       }
       await out.sync(); complete = true;
@@ -371,7 +371,7 @@ export class DownloadEngine extends EventEmitter {
             response = await request(segment.url, { headers: scopedHeaders(headers, plan.source, segment.url), signal: groupSignal });
             if (response.statusCode !== 200) throw new Error(`HLS segment returned HTTP ${response.statusCode}.`);
             const expected = Number(response.headers['content-length']);
-            for await (const chunk of response) { groupSignal.throwIfAborted(); await this.throttle(chunk.length, groupSignal); await out.writeFile(chunk); segment.downloaded += chunk.length; d.downloaded += chunk.length; }
+            for await (const chunk of response) { groupSignal.throwIfAborted(); await this.throttle(chunk.length, groupSignal); await out.write(chunk); segment.downloaded += chunk.length; d.downloaded += chunk.length; }
             if (Number.isFinite(expected) && expected !== segment.downloaded) throw new Error('Incomplete HLS segment.');
             await out.sync(); await out.close();
             await fs.rename(temp, path.join(dir, `${i}.part`)); segment.done = true;
@@ -478,7 +478,7 @@ export class DownloadEngine extends EventEmitter {
             signal.throwIfAborted();
             if (expected !== null && segment.downloaded + chunk.length > expected) throw new Error('Server sent more bytes than requested.');
             await this.throttle(chunk.length, signal);
-            await out.writeFile(chunk); segment.downloaded += chunk.length; d.downloaded += chunk.length;
+            await out.write(chunk); segment.downloaded += chunk.length; d.downloaded += chunk.length;
           }
           await out.sync();
         } finally { await out.close(); response.destroy(); }
