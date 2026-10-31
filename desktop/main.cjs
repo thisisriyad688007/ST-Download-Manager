@@ -1,24 +1,47 @@
 
 async function checkForUpdates(win) {
-  const { dialog, shell, BrowserWindow } = require("electron");
-  const targetWin = win || BrowserWindow.getFocusedWindow();
+  const electron = require("electron");
+  const app = electron.app;
+  const dialog = electron.dialog;
+  const shell = electron.shell;
+  const BrowserWindow = electron.BrowserWindow;
+
+  const targetWin = win || (BrowserWindow ? BrowserWindow.getFocusedWindow() : null);
+
+  // ডায়নামিকভাবে বর্তমান ইনস্টল থাকা ভার্সন সংগ্রহ
+  let currentVersion = "";
+  try {
+    currentVersion = app ? app.getVersion() : "";
+  } catch (_) {}
+  if (!currentVersion) {
+    try {
+      currentVersion = require("../package.json").version;
+    } catch (_) {
+      currentVersion = "0.1.3";
+    }
+  }
+
+  const cleanCurrent = currentVersion.replace(/^v/i, "").trim();
+
   try {
     const res = await fetch("https://api.github.com/repos/thisisriyad688007/ST-Download-Manager/releases/latest", {
       headers: { "User-Agent": "ST-Download-Manager" }
     });
-    if (!res.ok) throw new Error("HTTP " + res.status);
+    if (!res.ok) throw new Error("GitHub API responded with HTTP " + res.status);
     const data = await res.json();
-    const currentVersion = "v" + app.getVersion();
-    const latestVersion = data.tag_name || data.name || "";
     
-    if (latestVersion && latestVersion !== currentVersion) {
+    const remoteTag = (data.tag_name || data.name || "").trim();
+    const cleanRemote = remoteTag.replace(/^v/i, "").trim();
+
+    // ভার্সন তুলনা (অটোমেটিক)
+    if (cleanRemote && cleanRemote !== cleanCurrent) {
       const choice = await dialog.showMessageBox(targetWin, {
         type: "info",
         title: "Update Available",
-        message: `A new version (${latestVersion}) is available!`,
-        detail: `Current version: ${currentVersion}
+        message: `A new version (v${cleanRemote}) is available!`,
+        detail: `Current version: v${cleanCurrent}
 
-Do you want to visit the download page to get the latest version?`,
+Do you want to visit the download page to get the latest release?`,
         buttons: ["Download Update", "Later"],
         defaultId: 0,
         cancelId: 1
@@ -31,7 +54,7 @@ Do you want to visit the download page to get the latest version?`,
         type: "info",
         title: "Check for Updates",
         message: "ST Download Manager is up to date!",
-        detail: `You are running the latest version (${currentVersion}).`
+        detail: `You are running the latest version (v${cleanCurrent}).`
       });
     }
   } catch (err) {
