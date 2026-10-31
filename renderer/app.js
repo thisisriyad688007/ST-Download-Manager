@@ -1,4 +1,38 @@
 
+// --- GitHub In-App Update Checker ---
+window.checkForUpdates = async function(manual = true) {
+  const REPO = 'thisisriyad688007/ST-Download-Manager';
+  const CURRENT_VERSION = 'v0.1.0';
+  try {
+    if (manual) alert('Checking for updates from GitHub...');
+    const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, {
+      headers: { 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!res.ok) throw new Error('Could not fetch releases');
+    const data = await res.json();
+    const latestTag = data.tag_name || data.name;
+
+    if (latestTag && latestTag !== CURRENT_VERSION) {
+      const asset = (data.assets && data.assets.length > 0) ? data.assets[0].browser_download_url : data.html_url;
+      const confirmUpdate = confirm(`A new update is available: ${latestTag} (Current: ${CURRENT_VERSION})\n\nWould you like to open the download page?`);
+      if (confirmUpdate) {
+        window.open(asset, '_blank');
+      }
+    } else {
+      if (manual) alert(`You are using the latest version (${CURRENT_VERSION}).`);
+    }
+  } catch (err) {
+    if (manual) alert('Failed to check for updates. Please check your internet connection.');
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('[data-action="check-updates"]').forEach(el => {
+    el.addEventListener('click', () => window.checkForUpdates(true));
+  });
+});
+
+
 // --- Storage & Media Grabber Enhancements ---
 (function() {
   // ক্যাটাগরি পরিবর্তনের সাথে সাথে স্বয়ংক্রিয় সাব-ফোল্ডার পাথ সেট করা
