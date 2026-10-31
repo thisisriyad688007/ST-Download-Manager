@@ -1,11 +1,16 @@
 {
-  "name": "ST Download Manager",
+  "name": "st-download-manager",
   "version": "0.1.0",
   "description": "A Windows download manager with segmented transfers and browser video capture",
   "main": "desktop/main.cjs",
   "private": true,
-  "repository": { "type": "git", "url": "https://github.com/Swap Tech/ST Download Manager.git" },
-  "bugs": { "url": "https://github.com/Swap Tech/ST Download Manager/issues" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Swap Tech/ST Download Manager.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Swap Tech/ST Download Manager/issues"
+  },
   "author": "ST Download Manager contributors",
   "license": "MIT",
   "scripts": {
@@ -39,10 +44,22 @@
     ],
     "asar": true,
     "extraResources": [
-      { "from": "node_modules/ffmpeg-static/ffmpeg.exe.LICENSE", "to": "licenses/FFmpeg-LICENSE.txt" },
-      { "from": "node_modules/ffmpeg-static/ffmpeg.exe.README", "to": "licenses/FFmpeg-BUILD.txt" },
-      { "from": "node_modules/ffmpeg-static/LICENSE", "to": "licenses/ffmpeg-static-LICENSE.txt" },
-      { "from": "node_modules/googlevideo/LICENSE", "to": "licenses/googlevideo-LICENSE.txt" },
+      {
+        "from": "node_modules/ffmpeg-static/ffmpeg.exe.LICENSE",
+        "to": "licenses/FFmpeg-LICENSE.txt"
+      },
+      {
+        "from": "node_modules/ffmpeg-static/ffmpeg.exe.README",
+        "to": "licenses/FFmpeg-BUILD.txt"
+      },
+      {
+        "from": "node_modules/ffmpeg-static/LICENSE",
+        "to": "licenses/ffmpeg-static-LICENSE.txt"
+      },
+      {
+        "from": "node_modules/googlevideo/LICENSE",
+        "to": "licenses/googlevideo-LICENSE.txt"
+      },
       {
         "from": "vendor",
         "to": "tools",
@@ -69,6 +86,13 @@
           "README.md",
           "register-native-host.ps1"
         ]
+      },
+      {
+        "from": "bin",
+        "to": "bin",
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "asarUnpack": [
@@ -76,7 +100,14 @@
     ],
     "electronDist": "node_modules/electron/dist",
     "win": {
-      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "icon": "build/icon.ico",
       "signExecutable": false
     },
@@ -96,5 +127,6 @@
   "dependencies": {
     "ffmpeg-static": "^5.3.0",
     "googlevideo": "^5.0.1"
-  }
+  },
+  "productName": "ST Download Manager"
 }
