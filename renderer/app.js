@@ -3,13 +3,36 @@
   if (document.getElementById('st-quality-dlg')) return;
   const dlg = document.createElement('dialog');
   dlg.id = 'st-quality-dlg';
-  dlg.style.cssText = 'border:1px solid #0078d7;border-radius:6px;padding:16px;background:#1e1e1e;color:#fff;min-width:340px;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,0.6);';
-  dlg.innerHTML = '<h4 id="st-q-title" style="margin:0 0 10px 0;font-size:13px;color:#61afef;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:310px;">Loading video info...</h4>' +
-    '<div style="margin-bottom:12px;"><label style="display:block;margin-bottom:5px;font-size:11px;color:#aaa;">Select Resolution / Format:</label>' +
-    '<select id="st-q-select" style="width:100%;padding:6px;background:#2d2d2d;color:#fff;border:1px solid #444;border-radius:4px;outline:none;font-size:13px;"></select></div>' +
-    '<div style="display:flex;justify-content:flex-end;gap:8px;">' +
-    '<button id="st-q-cancel" type="button" style="padding:4px 10px;background:#444;color:#fff;border:none;border-radius:3px;cursor:pointer;">Cancel</button>' +
-    '<button id="st-q-download" type="button" style="padding:4px 12px;background:#0078d7;color:#fff;border:none;border-radius:3px;cursor:pointer;">Download</button></div>';
+  dlg.style.cssText = `
+    border: 1px solid #707070;
+    border-radius: 6px;
+    padding: 16px 20px;
+    background: #f0f0f0;
+    color: #1a1a1a;
+    width: 440px;
+    max-width: 90vw;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    font-family: "Segoe UI", Arial, sans-serif;
+    outline: none;
+    z-index: 100000;
+  `;
+  dlg.innerHTML = `
+    <div style="display:flex;align-items:center;margin-bottom:12px;border-bottom:1px solid #d0d0d0;padding-bottom:8px;">
+      <span style="font-weight:600;font-size:14px;color:#222;">Select Video / Audio Quality</span>
+    </div>
+    <div style="margin-bottom:14px;">
+      <label style="display:block;font-size:11px;color:#666;margin-bottom:4px;">Title:</label>
+      <div id="st-q-title" style="font-size:12px;font-weight:600;color:#0b57d0;background:#fff;border:1px solid #ccc;padding:6px 10px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Loading video info...</div>
+    </div>
+    <div style="margin-bottom:18px;">
+      <label style="display:block;font-size:12px;font-weight:500;color:#333;margin-bottom:6px;">Available Resolutions & Formats:</label>
+      <select id="st-q-select" style="width:100%;padding:7px 10px;background:#ffffff;color:#222;border:1px solid #abadb3;border-radius:4px;outline:none;font-size:13px;cursor:pointer;box-sizing:border-box;"></select>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;">
+      <button id="st-q-cancel" type="button" style="min-width:75px;padding:6px 14px;background:#e1e1e1;color:#222;border:1px solid #adadad;border-radius:3px;font-size:12px;cursor:pointer;">Cancel</button>
+      <button id="st-q-download" type="button" style="min-width:85px;padding:6px 16px;background:#0067c0;color:#ffffff;border:1px solid #005fb8;border-radius:3px;font-size:12px;font-weight:600;cursor:pointer;">Download</button>
+    </div>
+  `;
   document.body.appendChild(dlg);
 })();
 
