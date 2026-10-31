@@ -1,62 +1,45 @@
 
-async function checkForUpdates(parentWindow) {
-  const { net, shell } = require("electron");
+async function checkForUpdates(win) {
+  const { dialog, shell, BrowserWindow } = require("electron");
+  const targetWin = win || BrowserWindow.getFocusedWindow();
   try {
-    const request = net.request("https://api.github.com/repos/thisisriyad688007/ST-Download-Manager/releases/latest");
-    request.setHeader("User-Agent", "ST-Download-Manager");
-    request.on("response", (response) => {
-      let body = "";
-      response.on("data", (chunk) => { body += chunk; });
-      response.on("end", async () => {
-        try {
-          const data = JSON.parse(body);
-          const currentVersion = "v0.1.0";
-          const latestVersion = data.tag_name || data.name || "";
-          if (latestVersion && latestVersion !== currentVersion) {
-            const res = await dialog.showMessageBox(parentWindow, {
-              type: "info",
-              title: "Update Available",
-              message: `A new version (${latestVersion}) is available!`,
-              detail: `Current version: ${currentVersion}\nDo you want to visit the download page?`,
-              buttons: ["Download Update", "Later"],
-              defaultId: 0
-            });
-            if (res.response === 0 && data.html_url) {
-              shell.openExternal(data.html_url);
-            }
-          } else {
-            dialog.showMessageBox(parentWindow, {
-              type: "info",
-              title: "Check for Updates",
-              message: "ST Download Manager is up to date!",
-              detail: `You are running the latest version (${currentVersion}).`
-            });
-          }
-        } catch {
-          dialog.showMessageBox(parentWindow, {
-            type: "info",
-            title: "Check for Updates",
-            message: "ST Download Manager is up to date!",
-            detail: "You are running the latest version (v0.1.0)."
-          });
-        }
-      });
+    const res = await fetch("https://api.github.com/repos/thisisriyad688007/ST-Download-Manager/releases/latest", {
+      headers: { "User-Agent": "ST-Download-Manager" }
     });
-    request.on("error", () => {
-      dialog.showMessageBox(parentWindow, {
-        type: "warning",
-        title: "Update Check Failed",
-        message: "Unable to check for updates.",
-        detail: "Please check your internet connection."
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    const currentVersion = "v0.1.0";
+    const latestVersion = data.tag_name || data.name || "";
+    
+    if (latestVersion && latestVersion !== currentVersion) {
+      const choice = await dialog.showMessageBox(targetWin, {
+        type: "info",
+        title: "Update Available",
+        message: `A new version (${latestVersion}) is available!`,
+        detail: `Current version: ${currentVersion}
+
+Do you want to visit the download page to get the latest version?`,
+        buttons: ["Download Update", "Later"],
+        defaultId: 0,
+        cancelId: 1
       });
-    });
-    request.end();
+      if (choice.response === 0 && data.html_url) {
+        shell.openExternal(data.html_url);
+      }
+    } else {
+      await dialog.showMessageBox(targetWin, {
+        type: "info",
+        title: "Check for Updates",
+        message: "ST Download Manager is up to date!",
+        detail: `You are running the latest version (${currentVersion}).`
+      });
+    }
   } catch (err) {
-    dialog.showMessageBox(parentWindow, {
+    await dialog.showMessageBox(targetWin, {
       type: "warning",
       title: "Update Check Failed",
       message: "Unable to check for updates.",
-      detail: err.message
+      detail: err.message || "Please check your internet connection."
     });
   }
 }
@@ -227,7 +210,7 @@ if (process.argv.includes('--native-host')) {
         { label: 'File', submenu: [ { label: 'Download properties…', click: command('details') }, { label: 'Remove selected', accelerator: 'Delete', click: command('remove') }, { label: 'Remove completed downloads', click: command('removeCompleted') } ] },
         { label: 'Downloads', submenu: [ { label: 'Pause all', click: command('pauseAll') }, { label: 'Stop all', click: command('pauseAll') }, { type: 'separator' }, { label: 'Delete all completed', click: command('removeCompleted') }, { type: 'separator' }, { label: 'Find', accelerator: 'CmdOrCtrl+F', click: command('find') }, { type: 'separator' }, { label: 'Scheduler…', click: command('scheduler') }, { label: 'Start queue', click: command('resumeAll') }, { label: 'Stop queue', click: command('pauseAll') }, { label: 'Speed limiter…', click: command('settings') }, { type: 'separator' }, { label: 'Options…', click: command('settings') } ] },
         { label: 'View', submenu: [ { label: 'All downloads', click: command('all') }, { role: 'togglefullscreen' }, { type: 'separator' }, { role: 'zoomIn' }, { role: 'zoomOut' }, { role: 'resetZoom' } ] },
-        { label: 'Help', submenu: [ { label: 'Check for updates…', click: () => checkForUpdates(window) }, { type: 'separator' }, { label: 'Browser integration…', click: command('integration') }, { label: 'About ST Download Manager', click: () => dialog.showMessageBox(window, { title: 'About ST Download Manager', message: 'ST Download Manager 0.1.0', detail: 'Windows download manager with browser integration. Original implementation inspired by IDM. Full IDM feature parity is in development.' }) } ] }
+        { label: 'Help', submenu: [ { label: 'Check for updates…', click: (menuItem, browserWindow) => checkForUpdates(browserWindow) }, { type: 'separator' }, { label: 'Browser integration…', click: command('integration') }, { label: 'About ST Download Manager', click: () => dialog.showMessageBox(window, { title: 'About ST Download Manager', message: 'ST Download Manager 0.1.0', detail: 'Windows download manager with browser integration. Original implementation inspired by IDM. Full IDM feature parity is in development.' }) } ] }
       ]));
       engine.on('change', () => {
         const data=snapshot();
