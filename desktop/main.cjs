@@ -311,3 +311,44 @@ coreIpc.handle('downloader:fetchResolutions', async (event, videoUrl) => {
     } catch(err) { resolve({ ok: false }); }
   });
 });
+
+
+// --- Downloader Fetch Playlist Items Bridge ---
+if (typeof coreIpc !== 'undefined') {
+  coreIpc.handle('downloader:fetchPlaylist', async (event, playlistUrl) => {
+    return new Promise((resolve) => {
+      try {
+        const isPackaged = require('electron').app.isPackaged;
+        const basePath = isPackaged 
+          ? corePath.join(process.resourcesPath, 'tools') 
+          : corePath.join(__dirname, '..', 'tools');
+        const ytdlp = corePath.join(basePath, 'yt-dlp.exe');
+
+        const proc = coreSpawn(ytdlp, ['--flat-playlist', '--dump-single-json', playlistUrl]);
+        let stdoutData = '';
+
+        proc.stdout.on('data', (d) => { stdoutData += d.toString(); });
+        proc.on('close', (code) => {
+          if (code === 0) {
+            try {
+              const data = JSON.parse(stdoutData);
+              const items = [];
+              (data.entries || []).forEach((e, idx) => {
+                if (e && (e.url || e.id)) {
+                  const vUrl = e.url ? (e.url.startsWith('http') ? e.url : 'https://www.youtube.com/watch?v=' + e.url) : ('https://www.youtube.com/watch?v=' + e.id);
+                  items.push({
+                    index: idx + 1,
+                    title: e.title || ('Video #' + (idx + 1)),
+                    url: vUrl
+                  });
+                }
+              });
+              resolve({ ok: true, title: data.title || 'YouTube Playlist', items: items });
+            } catch(err) { resolve({ ok: false }); }
+          } else { resolve({ ok: false }); }
+        });
+        proc.on('error', () => resolve({ ok: false }));
+      } catch(err) { resolve({ ok: false }); }
+    });
+  });
+}

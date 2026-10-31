@@ -1,3 +1,105 @@
+
+// --- Playlist Selector Modal ---
+(function initPlaylistModal() {
+  if (document.getElementById('st-playlist-dlg')) return;
+  const dlg = document.createElement('dialog');
+  dlg.id = 'st-playlist-dlg';
+  dlg.style.cssText = `
+    border: 1px solid #707070;
+    border-radius: 6px;
+    padding: 16px 20px;
+    background: #f0f0f0;
+    color: #1a1a1a;
+    width: 520px;
+    max-width: 92vw;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    font-family: "Segoe UI", Arial, sans-serif;
+    outline: none;
+    z-index: 100001;
+  `;
+  dlg.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;border-bottom:1px solid #d0d0d0;padding-bottom:8px;">
+      <span style="font-weight:600;font-size:14px;color:#222;">Playlist Video Selector</span>
+      <span id="st-pl-count" style="font-size:11px;color:#666;"></span>
+    </div>
+    <div style="margin-bottom:8px;">
+      <div id="st-pl-title" style="font-size:12px;font-weight:600;color:#0b57d0;background:#fff;border:1px solid #ccc;padding:6px 10px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Loading playlist...</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px;">
+      <div>
+        <button id="st-pl-toggle-all" type="button" style="padding:2px 8px;background:#e1e1e1;border:1px solid #ccc;border-radius:3px;cursor:pointer;">Select / Deselect All</button>
+      </div>
+      <span style="color:#555;">Check videos to download</span>
+    </div>
+    <div id="st-pl-list" style="max-height:220px;overflow-y:auto;background:#fff;border:1px solid #abadb3;border-radius:4px;padding:6px;margin-bottom:14px;">
+      <div style="padding:10px;text-align:center;color:#666;font-size:12px;">Loading items...</div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;">
+      <button id="st-pl-cancel" type="button" style="min-width:75px;padding:6px 14px;background:#e1e1e1;color:#222;border:1px solid #adadad;border-radius:3px;font-size:12px;cursor:pointer;">Cancel</button>
+      <button id="st-pl-download" type="button" style="min-width:110px;padding:6px 16px;background:#0067c0;color:#ffffff;border:1px solid #005fb8;border-radius:3px;font-size:12px;font-weight:600;cursor:pointer;">Download Selected</button>
+    </div>
+  `;
+  document.body.appendChild(dlg);
+})();
+
+window.promptPlaylistVideos = async function(playlistUrl) {
+  const dlg = document.getElementById('st-playlist-dlg');
+  const title = document.getElementById('st-pl-title');
+  const countSpan = document.getElementById('st-pl-count');
+  const list = document.getElementById('st-pl-list');
+  const btnToggle = document.getElementById('st-pl-toggle-all');
+  const btnDl = document.getElementById('st-pl-download');
+  const btnCancel = document.getElementById('st-pl-cancel');
+
+  title.textContent = 'Fetching playlist details...';
+  countSpan.textContent = '';
+  list.innerHTML = '<div style="padding:10px;text-align:center;color:#666;font-size:12px;">Scanning playlist items...</div>';
+  btnDl.disabled = true;
+  dlg.showModal();
+
+  return new Promise(async (resolve) => {
+    btnCancel.onclick = () => { dlg.close(); resolve(null); };
+
+    try {
+      const res = await call('fetchPlaylist', playlistUrl);
+      if (res && res.ok && res.items && res.items.length > 0) {
+        title.textContent = res.title || 'Playlist Items';
+        countSpan.textContent = res.items.length + ' videos found';
+        list.innerHTML = '';
+
+        res.items.forEach((item) => {
+          const row = document.createElement('label');
+          row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:5px 6px;border-bottom:1px solid #f0f0f0;cursor:pointer;font-size:12px;';
+          row.innerHTML = `<input type="checkbox" class="st-pl-chk" value="${item.url}" checked style="cursor:pointer;" />
+                           <span style="color:#555;font-weight:600;width:24px;">#${item.index}</span>
+                           <span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${item.title}">${item.title}</span>`;
+          list.appendChild(row);
+        });
+
+        btnDl.disabled = false;
+        let allChecked = true;
+        btnToggle.onclick = () => {
+          allChecked = !allChecked;
+          list.querySelectorAll('.st-pl-chk').forEach(cb => cb.checked = allChecked);
+        };
+
+        btnDl.onclick = () => {
+          const selected = [];
+          list.querySelectorAll('.st-pl-chk:checked').forEach(cb => selected.push(cb.value));
+          dlg.close();
+          resolve(selected.length > 0 ? selected : null);
+        };
+      } else {
+        dlg.close();
+        resolve([playlistUrl]);
+      }
+    } catch(e) {
+      dlg.close();
+      resolve([playlistUrl]);
+    }
+  });
+};
+
 // --- Quality Selector Modal ---
 (function initModal() {
   if (document.getElementById('st-quality-dlg')) return;
@@ -343,7 +445,12 @@ $('#add-form').addEventListener('submit',async event => {
   event.preventDefault();
   const errorElement = $('#add-error'); errorElement.hidden = true;
   const rawUrl = ($('#download-urls').value || '').trim();
-    if (rawUrl.includes('youtube.com') || rawUrl.includes('youtu.be')) {
+    if (rawUrl.includes('list=') && (rawUrl.includes('youtube.com') || rawUrl.includes('youtu.be'))) {
+      const pickedUrls = await window.promptPlaylistVideos(rawUrl);
+      if (!pickedUrls || pickedUrls.length === 0) return;
+      $('#download-urls').value = pickedUrls.join(String.fromCharCode(10));
+      if ($('#download-category')) $('#download-category').value = 'Video';
+    } else if (rawUrl.includes('youtube.com') || rawUrl.includes('youtu.be')) {
       const q = await window.promptVideoQuality(rawUrl);
       if (!q) return;
       if ($('#download-category')) {
