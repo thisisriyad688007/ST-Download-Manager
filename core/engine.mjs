@@ -426,16 +426,17 @@ export class DownloadEngine extends EventEmitter {
         if (!ranged && segment.downloaded) { d.downloaded -= segment.downloaded; segment.downloaded = 0; await fs.writeFile(file, Buffer.alloc(0)); }
         const start = segment.start + segment.downloaded;
         const h = { ...headers };
-        if (ranged && response.statusCode === 206) { h.Range = `bytes=${start}-${segment.end}`; if (info.validator) h['If-Range'] = info.validator; }
+        if (ranged) { h.Range = `bytes=${start}-${segment.end}`; if (info.validator) h['If-Range'] = info.validator; }
         const response = await request(url, { headers: h, signal });
         // Facebook / CDN fallback: If server ignores range and returns 200 OK, accept as full stream
         
-        if (((ranged && response.statusCode !== 206) || (!ranged && response.statusCode !== 200))) {
+        
+        if ((ranged && response.statusCode !== 206 && !(response.statusCode === 200 && segment.start === 0 && (d.segments.length === 1 || /fbcdn|cdninstagram|tiktok/i.test(url)))) || (!ranged && response.statusCode !== 200)) {
           const status = response.statusCode; response.destroy();
           throw failure(`Server returned HTTP ${status}${ranged ? ' instead of a byte range' : ''}.`, transientStatus(status),
             status === 429 || status === 503 ? retryAfter(response.headers['retry-after']) : null);
         }
-        if (ranged) {
+        if (ranged && response.statusCode === 206) {
           const match = /^bytes (\d+)-(\d+)\/(\d+)$/.exec(response.headers['content-range'] || '');
           if (!match || Number(match[1]) !== start || Number(match[2]) !== segment.end || Number(match[3]) !== info.total) { response.destroy(); throw failure('Server returned an inconsistent byte range.'); }
         }
