@@ -1,4 +1,103 @@
 
+// --- ST Download Manager Audio & Power Handler ---
+(function() {
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  let audioCtx = null;
+
+  function getAudioContext() {
+    if (!audioCtx) audioCtx = new AudioCtx();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  // প্রফেশনাল স্মুথ বেল/টিংক সাউন্ড (Success Chime)
+  window.playSuccessChime = function() {
+    if (localStorage.getItem('st-opt-sound') === 'false') return;
+    try {
+      const ctx = getAudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15); // A5
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.6);
+    } catch(e) {}
+  };
+
+  // সফট এরর অ্যালার্ট সাউন্ড (Error Tone)
+  window.playErrorAlert = function() {
+    if (localStorage.getItem('st-opt-error-sound') === 'false') return;
+    try {
+      const ctx = getAudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(320, ctx.currentTime);
+      osc.frequency.setValueAtTime(220, ctx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.25, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.4);
+    } catch(e) {}
+  };
+
+  // সেটিংস ডায়ালগ ওপেন হলে ভ্যালু লোড করা
+  window.loadExtendedSettings = function() {
+    const map = {
+      'setting-auto-shutdown': 'st-opt-shutdown',
+      'setting-prevent-sleep': 'st-opt-sleep',
+      'setting-notify-sound': 'st-opt-sound',
+      'setting-error-sound': 'st-opt-error-sound',
+      'setting-show-completed': 'st-opt-completed',
+      'setting-auto-cleanup': 'st-opt-cleanup',
+      'setting-verify-integrity': 'st-opt-integrity'
+    };
+    for (const [id, key] of Object.entries(map)) {
+      const el = document.getElementById(id);
+      if (el) {
+        const val = localStorage.getItem(key);
+        if (val !== null) el.checked = (val === 'true');
+      }
+    }
+  };
+
+  // সেটিংস ডায়ালগ সেভ হলে ভ্যালু সংরক্ষণ করা
+  window.saveExtendedSettings = function() {
+    const ids = [
+      ['setting-auto-shutdown', 'st-opt-shutdown'],
+      ['setting-prevent-sleep', 'st-opt-sleep'],
+      ['setting-notify-sound', 'st-opt-sound'],
+      ['setting-error-sound', 'st-opt-error-sound'],
+      ['setting-show-completed', 'st-opt-completed'],
+      ['setting-auto-cleanup', 'st-opt-cleanup'],
+      ['setting-verify-integrity', 'st-opt-integrity']
+    ];
+    ids.forEach(([id, key]) => {
+      const el = document.getElementById(id);
+      if (el) localStorage.setItem(key, el.checked ? 'true' : 'false');
+    });
+  };
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const sForm = document.getElementById('settings-form');
+    if (sForm) {
+      sForm.addEventListener('submit', () => window.saveExtendedSettings());
+    }
+    const optBtn = document.querySelector('[data-action="options"]') || document.querySelector('.tool[data-icon="options"]');
+    if (optBtn) {
+      optBtn.addEventListener('click', () => setTimeout(window.loadExtendedSettings, 50));
+    }
+  });
+})();
+
+
 // --- Theme Manager Controller ---
 (function() {
   const currentTheme = localStorage.getItem('st-theme') || 'dark';

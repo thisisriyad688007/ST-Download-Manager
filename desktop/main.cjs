@@ -352,3 +352,22 @@ if (typeof coreIpc !== 'undefined') {
     });
   });
 }
+
+
+// --- Power Save Blocker Bridge ---
+const { powerSaveBlocker } = require('electron');
+let activeSleepBlockerId = null;
+
+if (typeof coreIpc !== 'undefined') {
+  coreIpc.handle('downloader:powerManagement', (event, { preventSleep }) => {
+    if (preventSleep && activeSleepBlockerId === null) {
+      activeSleepBlockerId = powerSaveBlocker.start('prevent-app-suspension');
+      return { active: true };
+    } else if (!preventSleep && activeSleepBlockerId !== null) {
+      powerSaveBlocker.stop(activeSleepBlockerId);
+      activeSleepBlockerId = null;
+      return { active: false };
+    }
+    return { active: activeSleepBlockerId !== null };
+  });
+}
