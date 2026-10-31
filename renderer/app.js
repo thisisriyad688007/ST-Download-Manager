@@ -1,4 +1,86 @@
 
+function createContextMenu() {
+  let menu = document.getElementById("idm-context-menu");
+  if (!menu) {
+    menu = document.createElement("div");
+    menu.id = "idm-context-menu";
+    menu.style.cssText = "position:fixed;display:none;z-index:9999;background:#1e1e1e;color:#fff;border:1px solid #333;border-radius:6px;box-shadow:0 8px 16px rgba(0,0,0,0.5);padding:4px 0;min-width:180px;font-size:13px;user-select:none;";
+    document.body.appendChild(menu);
+    document.addEventListener("click", () => { menu.style.display = "none"; });
+  }
+  return menu;
+}
+
+function showIDMContextMenu(x, y, d) {
+  const menu = createContextMenu();
+  const status = statusOf(d);
+  const items = [
+    { label: "Open", disabled: status !== "completed", action: () => call("openFile", d.path) },
+    { label: "Open folder", disabled: status !== "completed", action: () => call("revealFile", d.path) },
+    { type: "separator" },
+    { label: "Resume", disabled: !canResume(d), action: () => performAction(d, "resume") },
+    { label: "Stop", disabled: !canPause(d), action: () => performAction(d, "pause") },
+    { label: "Redownload", action: () => performAction(d, "redownload") },
+    { type: "separator" },
+    { label: "Delete from list", action: () => performAction(d, "remove") },
+    { label: "Delete completion file", disabled: status !== "completed", action: () => {
+      if (confirm(`Are you sure you want to delete "${d.filename}" from disk?`)) performAction(d, "deleteFile");
+    }},
+    { type: "separator" },
+    { label: "Properties", action: () => showDetails(d.id) }
+  ];
+
+  menu.innerHTML = "";
+  items.forEach(item => {
+    if (item.type === "separator") {
+      const sep = document.createElement("div");
+      sep.style.cssText = "height:1px;background:#333;margin:4px 0;";
+      menu.appendChild(sep);
+      return;
+    }
+    const row = document.createElement("div");
+    row.textContent = item.label;
+    row.style.cssText = "padding:6px 14px;cursor:pointer;display:flex;align-items:center;";
+    if (item.disabled) {
+      row.style.opacity = "0.4";
+      row.style.cursor = "default";
+    } else {
+      row.addEventListener("mouseenter", () => { row.style.background = "#0078d4"; });
+      row.addEventListener("mouseleave", () => { row.style.background = "transparent"; });
+      row.addEventListener("click", () => { menu.style.display = "none"; item.action(); });
+    }
+    menu.appendChild(row);
+  });
+
+  menu.style.left = `${Math.min(x, window.innerWidth - 190)}px`;
+  menu.style.top = `${Math.min(y, window.innerHeight - 260)}px`;
+  menu.style.display = "block";
+}
+
+
+function expandWildcards(text) {
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const result = [];
+  const pattern = /\[(\d+)-(\d+)\]/;
+  for (const line of lines) {
+    const match = line.match(pattern);
+    if (match) {
+      const start = parseInt(match[1], 10);
+      const end = parseInt(match[2], 10);
+      const pad = match[1].length;
+      const min = Math.min(start, end);
+      const max = Math.max(start, end);
+      for (let i = min; i <= Math.min(max, min + 100); i++) {
+        result.push(line.replace(pattern, String(i).padStart(pad, "0")));
+      }
+    } else {
+      result.push(line);
+    }
+  }
+  return result;
+}
+
+
 // --- GitHub In-App Update Checker ---
 window.checkForUpdates = async function(manual = true) {
   const REPO = 'thisisriyad688007/ST-Download-Manager';
@@ -616,7 +698,7 @@ function canPause(d) { return d && !d.needsReview && ['downloading','connecting'
 function matches(d) { const status = statusOf(d); if (filter === 'completed' && status !== 'completed') return false; if (filter === 'unfinished' && status === 'completed') return false; if (filter === 'queued' && !['queued','scheduled','paused'].includes(status)) return false; if (category && categoryOf(d) !== category) return false; return !searchTerm || `${d.filename || ''} ${d.url || ''}`.toLowerCase().includes(searchTerm); }
 function paintSelection() { $$('.download-row').forEach(row => { const active=selectedIds.has(row.dataset.id); row.classList.toggle('selected',active); row.setAttribute('aria-selected',String(active)); }); updateControls(); }
 function selectDownload(id,{additive=false,toggle=false}={}) { if(!additive)selectedIds.clear(); if(toggle&&selectedIds.has(id))selectedIds.delete(id); else if(id)selectedIds.add(id); selectedId=selectedIds.has(id)?id:(selectedIds.values().next().value||null); paintSelection(); }
-function rowFor(d) { const status = statusOf(d), percent = percentage(d); const row = element('tr','download-row'); row.dataset.id = d.id; row.dataset.status = status; row.classList.toggle('selected',selectedIds.has(d.id)); row.setAttribute('aria-selected',String(selectedIds.has(d.id))); const nameCell = element('td'); nameCell.title = d.filename || d.url; const name = element('span','file-name'); name.append(element('span','file-type-icon',status === 'completed' ? '✓' : status === 'failed' ? '!' : '↓'),element('span','',d.filename || 'Preparing file…')); nameCell.append(name); const names = {completed:'Complete',downloading:percent === null ? 'Receiving data…' : `${percent.toFixed(2)}%`,connecting:'Connecting…',assembling:'Finalizing…',queued:'Queued',scheduled:'Scheduled',paused:'Stopped',cancelled:'Cancelled',failed:'Error'}; const statusCell = element('td',`row-status ${status}`,names[status] || status); statusCell.title = d.error || names[status] || status; const description = d.description || d.error || d.notice || (d.scheduledAt && status === 'scheduled' ? `Starts ${date(d.scheduledAt)}` : ''); const descriptionCell = element('td','',description); descriptionCell.title = description; row.append(nameCell,element('td','',['queued','scheduled','paused'].includes(status) ? '✓' : ''),element('td','',sizeLabel(d)),statusCell,element('td','',status === 'downloading' ? timeLeft(d) : ''),element('td','',status === 'downloading' ? `${bytes(d.speed)}/sec` : ''),element('td','',date(d.lastTry || d.createdAt)),descriptionCell); row.addEventListener('click',event => {if(suppressRowClick)return;selectDownload(d.id,{additive:event.ctrlKey||event.metaKey,toggle:event.ctrlKey||event.metaKey});}); row.addEventListener('dblclick',() => showDetails(d.id)); row.addEventListener('contextmenu',event => { event.preventDefault(); selectDownload(d.id); showDetails(d.id); }); return row; }
+function rowFor(d) { const status = statusOf(d), percent = percentage(d); const row = element('tr','download-row'); row.dataset.id = d.id; row.dataset.status = status; row.classList.toggle('selected',selectedIds.has(d.id)); row.setAttribute('aria-selected',String(selectedIds.has(d.id))); const nameCell = element('td'); nameCell.title = d.filename || d.url; const name = element('span','file-name'); name.append(element('span','file-type-icon',status === 'completed' ? '✓' : status === 'failed' ? '!' : '↓'),element('span','',d.filename || 'Preparing file…')); nameCell.append(name); const names = {completed:'Complete',downloading:percent === null ? 'Receiving data…' : `${percent.toFixed(2)}%`,connecting:'Connecting…',assembling:'Finalizing…',queued:'Queued',scheduled:'Scheduled',paused:'Stopped',cancelled:'Cancelled',failed:'Error'}; const statusCell = element('td',`row-status ${status}`,names[status] || status); statusCell.title = d.error || names[status] || status; const description = d.description || d.error || d.notice || (d.scheduledAt && status === 'scheduled' ? `Starts ${date(d.scheduledAt)}` : ''); const descriptionCell = element('td','',description); descriptionCell.title = description; row.append(nameCell,element('td','',['queued','scheduled','paused'].includes(status) ? '✓' : ''),element('td','',sizeLabel(d)),statusCell,element('td','',status === 'downloading' ? timeLeft(d) : ''),element('td','',status === 'downloading' ? `${bytes(d.speed)}/sec` : ''),element('td','',date(d.lastTry || d.createdAt)),descriptionCell); row.addEventListener('click',event => {if(suppressRowClick)return;selectDownload(d.id,{additive:event.ctrlKey||event.metaKey,toggle:event.ctrlKey||event.metaKey});}); row.addEventListener('dblclick',() => showDetails(d.id)); row.addEventListener('contextmenu',event => { event.preventDefault(); selectDownload(d.id); showIDMContextMenu(event.clientX, event.clientY, d); }); return row; }
 function updateControls() { const d = selected(), busy = d && pending.has(d.id); $('#resume-selected').disabled = (!canResume(d) && !d?.needsReview) || busy; $('#stop-selected').disabled = !canPause(d) || busy; $('#remove-selected').disabled = !d || busy; $('#open-selected').disabled = !d || statusOf(d) !== 'completed'; $('#reveal-selected').disabled = !d; $('#details-selected').disabled = !d; $('#pause-all').disabled = !state.downloads.some(canPause); $('#stop-queue').disabled = $('#pause-all').disabled; $('#resume-all').disabled = !state.downloads.some(canResume); $('#remove-completed').disabled = !state.downloads.some(d => statusOf(d) === 'completed'); $('#scheduler-start').disabled = $('#resume-all').disabled; $('#scheduler-stop').disabled = $('#pause-all').disabled; }
 function render() { visibleDownloads = state.downloads.filter(matches).sort((a,b) => { const result = sort === 'total' ? numeric(a.total) - numeric(b.total) : sort === 'createdAt' ? new Date(a.createdAt || 0) - new Date(b.createdAt || 0) : String(a[sort] || '').localeCompare(String(b[sort] || '')); return ascending ? result : -result; }); $('#download-list').replaceChildren(...visibleDownloads.map(rowFor)); $('#empty-state').hidden = visibleDownloads.length > 0; $('#empty-message').textContent = searchTerm ? 'No downloads match your search.' : 'No downloads to display.'; const complete = state.downloads.filter(d => statusOf(d) === 'completed').length; $('#list-count').textContent = `${visibleDownloads.length} ${visibleDownloads.length === 1 ? 'download' : 'downloads'}${state.downloads.length !== visibleDownloads.length ? ` of ${state.downloads.length}` : ''} (${complete} completed)`; $('#status-summary').textContent = `${bytes(state.downloads.reduce((sum,d) => sum + numeric(d.speed),0))}/sec`; updateControls(); if ($('#details-dialog').open) renderDetails(); if ($('#scheduler-dialog').open) renderScheduler(); }
 async function performAction(d,action) { if (!d || pending.has(d.id)) return; if (action === 'remove' && !window.confirm(`Delete “${d.filename || 'this download'}” from the download list?\n\nThe downloaded file will remain on your PC.`)) return; pending.add(d.id); updateControls(); try { await call('action',{id:d.id,action}); await refresh(); } catch (error) { notify(messageOf(error),true); } finally { pending.delete(d.id); updateControls(); if ($('#details-dialog').open) renderDetails(); } }
@@ -726,7 +808,11 @@ $('#add-form').addEventListener('submit',async event => {
   finally { $('#add-submit').disabled = false; $('#add-later').disabled = false; }
 });
 $('#choose-directory').addEventListener('click',async () => { try { const path = await call('chooseDirectory'); if (typeof path === 'string' && path) $('#default-directory').value = path; } catch (error) { $('#settings-error').textContent = messageOf(error); $('#settings-error').hidden = false; } }); $('#settings-form').addEventListener('submit',async event => { event.preventDefault(); const button = $('button[type=submit]',event.target); $('#settings-error').hidden = true; button.disabled = true; try { await call('settings',{defaultDirectory:$('#default-directory').value.trim(),maxConcurrent:Number($('#max-concurrent').value),connections:Number($('#connections').value),speedLimitKbps:Number($('#speed-limit').value)}); await refresh(); $('#settings-dialog').close(); } catch (error) { $('#settings-error').textContent = messageOf(error); $('#settings-error').hidden = false; } finally { button.disabled = false; } });
-async function start() { try { await refresh(); if (typeof api.subscribe === 'function') unsubscribe = api.subscribe(snapshot => { if (snapshot?.downloads) acceptSnapshot(snapshot); else refresh().catch(error => notify(messageOf(error),true)); }); if (typeof api.onCommand === 'function') unsubscribeCommands = api.onCommand(async payload => { const command = typeof payload === 'string' ? payload : payload?.command; if (command === 'dismissBrowserIntegration') { if ($('#integration-dialog').open) $('#integration-dialog').close(); return; } if (command === 'reviewDownload') { try { await refresh(); if (!$$('dialog[open]').length) openReview(payload.id); } catch (error) { notify(messageOf(error),true); } return; } if (!$$('dialog[open]').length || ['pauseAll','resumeAll','removeCompleted'].includes(command)) commands[command]?.(); }); } catch (error) { $('#download-list').setAttribute('aria-busy','false'); $('#list-count').textContent = 'Download service unavailable'; $('#connection-label').textContent = 'Disconnected'; notify(messageOf(error),true); } }
+async function start() { try { await refresh(); if (typeof api.subscribe === 'function') unsubscribe = api.subscribe(snapshot => { if (snapshot?.downloads) acceptSnapshot(snapshot); else refresh().catch(error => notify(messageOf(error),true)); }); if (typeof api.onCommand === 'function') unsubscribeCommands = api.onCommand(async payload => { const command = typeof payload === 'string' ? payload : payload?.command; if (command === 'dismissBrowserIntegration') { if ($('#integration-dialog').open) $('#integration-dialog').close(); return; } if (command === 'openAddUrl') {
+        openAdd(payload.url || "");
+        return;
+      }
+      if (command === 'reviewDownload') { try { await refresh(); if (!$$('dialog[open]').length) openReview(payload.id); } catch (error) { notify(messageOf(error),true); } return; } if (!$$('dialog[open]').length || ['pauseAll','resumeAll','removeCompleted'].includes(command)) commands[command]?.(); }); } catch (error) { $('#download-list').setAttribute('aria-busy','false'); $('#list-count').textContent = 'Download service unavailable'; $('#connection-label').textContent = 'Disconnected'; notify(messageOf(error),true); } }
 window.addEventListener('beforeunload',() => { if (typeof unsubscribe === 'function') unsubscribe(); if (typeof unsubscribeCommands === 'function') unsubscribeCommands(); });
 if(progressMode){
   $('#details-dialog').addEventListener('close',()=>call('closeProgress'));

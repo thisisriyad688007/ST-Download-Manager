@@ -194,13 +194,22 @@ export class DownloadEngine extends EventEmitter {
   async action(id, action) {
     const d = this.downloads.find(d => d.id === id);
     if (!d) throw new Error('Download not found.');
-    if (!['pause', 'resume', 'retry', 'cancel', 'remove'].includes(action)) throw new Error('Unknown download action.');
-    if (action === 'pause' || action === 'cancel' || action === 'remove') {
+    if (!['pause', 'resume', 'retry', 'cancel', 'remove', 'deleteFile', 'redownload'].includes(action)) throw new Error('Unknown download action.');
+    if (['pause', 'cancel', 'remove', 'deleteFile', 'redownload'].includes(action)) {
       const job = this.jobs.get(id);
       if (job) { job.controller.abort(); await job.promise; }
       if (action === 'pause' && d.status !== 'complete') d.status = 'paused';
       if (action === 'cancel' && d.status !== 'complete') { d.status = 'cancelled'; d.needsReview = false; }
-      if (action === 'remove') this.downloads = this.downloads.filter(x => x.id !== id);
+      if (action === 'redownload') {
+        d.status = 'queued'; d.downloaded = 0; d.error = null; d.scheduledAt = null;
+        if (d.path) await fs.rm(d.path, { force: true }).catch(() => {});
+      }
+      if (action === 'remove' || action === 'deleteFile') {
+        if (action === 'deleteFile' && d.path) {
+          await fs.rm(d.path, { force: true }).catch(() => {});
+        }
+        this.downloads = this.downloads.filter(x => x.id !== id);
+      }
       if (action !== 'pause') { await fs.rm(path.join(this.partsDirectory, id), { recursive: true, force: true }); d.segments = []; if (d.status !== 'complete') d.downloaded = 0; }
     } else {
       if (d.needsReview) throw new Error('Confirm this browser download in Download File Info first.');

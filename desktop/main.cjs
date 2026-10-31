@@ -171,7 +171,15 @@ if (process.argv.includes('--native-host')) {
         }
         throw new Error('Unknown browser setup action.');
       };
-      for (const [name, handler] of Object.entries(handlers)) ipcMain.handle(`downloader:${name}`, (event, data) => {
+      for (const [name, handler] of Object.entries(handlers)) 
+    ipcMain.handle("downloader:openFile", async (event, filePath) => {
+      if (filePath) return shell.openPath(filePath);
+    });
+    ipcMain.handle("downloader:revealFile", async (event, filePath) => {
+      if (filePath) return shell.showItemInFolder(filePath);
+    });
+
+    ipcMain.handle(`downloader:${name}`, (event, data) => {
         if (![window,...progressWindows.values()].some(w=>!w.isDestroyed()&&event.senderFrame===w.webContents.mainFrame)) throw new Error('Untrusted renderer.');
         return handler(data, BrowserWindow.fromWebContents(event.sender));
       });
