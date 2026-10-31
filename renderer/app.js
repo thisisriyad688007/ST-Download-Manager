@@ -34,9 +34,19 @@
     <div id="st-pl-list" style="max-height:220px;overflow-y:auto;background:#fff;border:1px solid #abadb3;border-radius:4px;padding:6px;margin-bottom:14px;">
       <div style="padding:10px;text-align:center;color:#666;font-size:12px;">Loading items...</div>
     </div>
+    <div style="margin-bottom:14px;display:flex;align-items:center;gap:10px;background:#e9e9e9;padding:8px 12px;border-radius:4px;border:1px solid #ccc;">
+      <label style="font-size:12px;font-weight:600;color:#333;white-space:nowrap;">Download Quality / Format:</label>
+      <select id="st-pl-quality" style="flex:1;padding:5px 8px;background:#fff;border:1px solid #abadb3;border-radius:3px;font-size:12px;outline:none;">
+        <option value="bestvideo[height<=1080]+bestaudio/best">1080p Full HD Video</option>
+        <option value="bestvideo[height<=720]+bestaudio/best" selected>720p HD Video</option>
+        <option value="bestvideo[height<=480]+bestaudio/best">480p Video</option>
+        <option value="bestvideo[height<=360]+bestaudio/best">360p Video</option>
+        <option value="bestaudio/best" data-audio="true">Audio Only (MP3/M4A)</option>
+      </select>
+    </div>
     <div style="display:flex;justify-content:flex-end;gap:10px;">
       <button id="st-pl-cancel" type="button" style="min-width:75px;padding:6px 14px;background:#e1e1e1;color:#222;border:1px solid #adadad;border-radius:3px;font-size:12px;cursor:pointer;">Cancel</button>
-      <button id="st-pl-download" type="button" style="min-width:110px;padding:6px 16px;background:#0067c0;color:#ffffff;border:1px solid #005fb8;border-radius:3px;font-size:12px;font-weight:600;cursor:pointer;">Download Selected</button>
+      <button id="st-pl-download" type="button" style="min-width:130px;padding:6px 16px;background:#0067c0;color:#ffffff;border:1px solid #005fb8;border-radius:3px;font-size:12px;font-weight:600;cursor:pointer;">Download Selected</button>
     </div>
   `;
   document.body.appendChild(dlg);
@@ -86,8 +96,11 @@ window.promptPlaylistVideos = async function(playlistUrl) {
         btnDl.onclick = () => {
           const selected = [];
           list.querySelectorAll('.st-pl-chk:checked').forEach(cb => selected.push(cb.value));
+          const qSelect = document.getElementById('st-pl-quality');
+          const isAudio = qSelect.selectedOptions[0]?.dataset?.audio === 'true';
+          const formatVal = qSelect.value;
           dlg.close();
-          resolve(selected.length > 0 ? selected : null);
+          resolve(selected.length > 0 ? { urls: selected, format: formatVal, isAudio: isAudio } : null);
         };
       } else {
         dlg.close();
@@ -446,10 +459,12 @@ $('#add-form').addEventListener('submit',async event => {
   const errorElement = $('#add-error'); errorElement.hidden = true;
   const rawUrl = ($('#download-urls').value || '').trim();
     if (rawUrl.includes('list=') && (rawUrl.includes('youtube.com') || rawUrl.includes('youtu.be'))) {
-      const pickedUrls = await window.promptPlaylistVideos(rawUrl);
-      if (!pickedUrls || pickedUrls.length === 0) return;
-      $('#download-urls').value = pickedUrls.join(String.fromCharCode(10));
-      if ($('#download-category')) $('#download-category').value = 'Video';
+      const plRes = await window.promptPlaylistVideos(rawUrl);
+      if (!plRes || !plRes.urls || plRes.urls.length === 0) return;
+      $('#download-urls').value = plRes.urls.join(String.fromCharCode(10));
+      if ($('#download-category')) {
+        $('#download-category').value = plRes.isAudio ? 'Music' : 'Video';
+      }
     } else if (rawUrl.includes('youtube.com') || rawUrl.includes('youtu.be')) {
       const q = await window.promptVideoQuality(rawUrl);
       if (!q) return;
