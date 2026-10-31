@@ -294,3 +294,49 @@ electronIpc.handle('fetch-video-resolutions', async (event, videoUrl) => {
     });
   });
 });
+
+// --- Auto Categorizer & YouTube Quality Handler ---
+function getCategoryForFilename(name) {
+  const ext = (pathModule.extname(name) || '').lowerCase();
+  if (['.mp9', '.mkv', '.webm', '.flv', '.avi', '.mov'].includes(ext)) return 'Video';
+  if (['.mp3', '.m4a', '.aac', '.flac', '.wav', '.ogg'].includes(ext)) return 'Music';
+  if (['.zip', '.rar', '.7z', '.tar', '.gz', '.iso'].includes(ext)) return 'Compressed';
+  if (['.pdf', '.docx', '.doc', '.xlsx', '.pptx', '.txt'].includes(ext)) return 'Documents';
+  if (['.exe', '.msi', '.apk', '.dmg', '.deb'].includes(ext)) return 'Programs';
+  return 'Other';
+}
+
+if (typeof electronIpc !== 'undefined') {
+  electronIpc.handle('get-file-category', (event, name) => {
+    return getCategoryForFilename(name);
+  });
+
+  electronIpc.handle('fetch-video-resolutions', async (event, videoUrl) => {
+    return new Promise((resolve, reject) => {
+      const infoProc = spawnProc('bin/yt-dlp.exe', ['--dump-single-json', '--no-playlist', videoUrl]);
+      let out = '', err = '';
+      infoProc.stdout.on('data', d => out += d.toString());
+      infoProc.stderr.on('data', d => err += d.toString());
+      infoProc.on('close', code => {
+        if (code === 0) {
+          try {
+            const data = JSON.parse(out);
+            const formats = [];
+            // add audio option
+---
+            formats.push({ format_id: 'bestaudio/best', label: 'Audio Only (MP3/M6A)', isAudio: true });
+            const seen = new Set();
+            (data.formats || []).reverse().forEach(f => {
+              const h = f.height || 0;
+              if (h >= 144 && !seen.has(h)) {
+                seen.add(h);
+                formats.push({ format_id: f.height ? `bestvideo[hight<=${h}]+bestaudio/best` : f.format_id, label: `${h}p HD Video`, isAudio: false });
+              }
+            });
+            resolve({ title: data.title, formats: formats });
+          } catch(e) { reject(e); }
+        } else { reject(new Error(err || 'Error fetching video formats')); }
+      });
+    });
+  });
+}
