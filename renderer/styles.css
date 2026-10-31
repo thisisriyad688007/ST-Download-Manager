@@ -14,119 +14,266 @@
 
 
 
+
+
+
 /* === Modern Dashboard Theme & Mode Support === */
 :root {
-  --bg-main: #0b0f19;
-  --bg-surface: #151d2f;
-  --bg-card: #1e293b;
-  --border-color: #27354f;
-  --text-main: #f1f5f9;
-  --text-muted: #94a3b8;
+  --bg-app: #0d1117;
+  --bg-side: #161b22;
+  --bg-surface: #21262d;
+  --bg-hover: rgba(56, 189, 248, 0.12);
+  --border: #30363d;
+  --text-main: #f0f6fc;
+  --text-muted: #8b949e;
   --accent: #38bdf8;
-  --accent-hover: #0284c7;
-  --row-hover: rgba(56, 189, 248, 0.08);
-  --header-bg: #111827;
-  --dialog-bg: #151d2f;
-  --dialog-border: #334155;
-  --input-bg: #0b0f19;
-  --input-border: #334155;
-  --badge-bg: #1e293b;
+  --accent-glow: rgba(56, 189, 248, 0.25);
+  --success: #3fb950;
+  --danger: #f85149;
+  --btn-bg: #21262d;
+  --btn-border: #363b42;
+  --scroll-track: #161b22;
+  --scroll-thumb: #30363d;
 }
 
 [data-theme="light"] {
-  --bg-main: #f8fafc;
-  --bg-surface: #ffffff;
-  --bg-card: #f1f5f9;
-  --border-color: #e2e8f0;
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --accent: #0284c7;
-  --accent-hover: #0369a1;
-  --row-hover: rgba(2, 132, 199, 0.08);
-  --header-bg: #f1f5f9;
-  --dialog-bg: #ffffff;
-  --dialog-border: #cbd5e1;
-  --input-bg: #ffffff;
-  --input-border: #cbd5e1;
-  --badge-bg: #e2e8f0;
+  --bg-app: #f6f8fa;
+  --bg-side: #ffffff;
+  --bg-surface: #f3f4f6;
+  --bg-hover: rgba(2, 132, 199, 0.08);
+  --border: #d0d7de;
+  --text-main: #1f2328;
+  --text-muted: #656d76;
+  --accent: #0969da;
+  --accent-glow: rgba(9, 105, 218, 0.2);
+  --success: #1a7f37;
+  --danger: #cf222e;
+  --btn-bg: #f6f8fa;
+  --btn-border: #d0d7de;
+  --scroll-track: #f6f8fa;
+  --scroll-thumb: #d0d7de;
 }
 
+/* Base Body & App Shell */
 body {
-  background-color: var(--bg-main) !important;
+  background-color: var(--bg-app) !important;
   color: var(--text-main) !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  font-size: 12px !important;
+  user-select: none;
 }
 
-header, nav, .toolbar, .menu-bar {
-  background-color: var(--bg-surface) !important;
-  border-bottom: 1px solid var(--border-color) !important;
+/* 1. Modern Flat Toolbar */
+.toolbar {
+  height: 56px !important;
+  background: var(--bg-side) !important;
+  border-top: none !important;
+  border-bottom: 1px solid var(--border) !important;
+  padding: 0 12px !important;
+  gap: 6px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.tool {
+  height: 44px !important;
+  min-width: 58px !important;
+  padding: 4px 8px !important;
+  border-radius: 6px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  gap: 3px !important;
+  transition: all 0.15s ease !important;
+}
+
+.tool:hover:not(:disabled) {
+  background: var(--bg-surface) !important;
+  border-color: var(--border) !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
+}
+
+.tool svg {
+  width: 20px !important;
+  height: 20px !important;
+  stroke: var(--accent) !important;
+  stroke-width: 1.8 !important;
+}
+
+.tool span {
+  font-size: 11px !important;
+  font-weight: 500 !important;
   color: var(--text-main) !important;
 }
 
-aside, .sidebar, #categories, #categories-pane {
-  background-color: var(--bg-surface) !important;
-  border-right: 1px solid var(--border-color) !important;
-  color: var(--text-main) !important;
+/* 2. Sleek Modern Sidebar */
+.categories {
+  width: 180px !important;
+  background: var(--bg-side) !important;
+  border: none !important;
+  border-right: 1px solid var(--border) !important;
+  margin: 0 !important;
+  padding: 10px 8px !important;
 }
 
-table, .download-grid, .transfers-table {
-  background-color: var(--bg-surface) !important;
-  color: var(--text-main) !important;
+.pane-heading {
+  height: 26px !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 6px !important;
+  margin-bottom: 6px !important;
 }
 
-th {
-  background-color: var(--header-bg) !important;
+.pane-heading span {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
   color: var(--text-muted) !important;
-  border-bottom: 2px solid var(--border-color) !important;
 }
 
-td {
-  border-bottom: 1px solid var(--border-color) !important;
-}
-
-tr:hover {
-  background-color: var(--row-hover) !important;
-}
-
-input, select, textarea {
-  background-color: var(--input-bg) !important;
+.tree-item {
+  height: 28px !important;
+  border-radius: 6px !important;
+  padding: 0 8px !important;
   color: var(--text-main) !important;
-  border: 1px solid var(--input-border) !important;
-  border-radius: 5px !important;
+  font-size: 12px !important;
+  margin-bottom: 2px !important;
+  transition: background 0.15s ease !important;
 }
 
-input:focus, select:focus, textarea:focus {
-  border-color: var(--accent) !important;
+.tree-item:hover {
+  background: var(--bg-hover) !important;
+}
+
+.tree-item.selected {
+  background: var(--accent) !important;
+  color: #fff !important;
+  outline: none !important;
+  font-weight: 500 !important;
+}
+
+.tree-item.selected .folder-icon {
+  filter: brightness(0) invert(1) !important;
+}
+
+/* Remove 90s vintage folder styling */
+.tree-children:before, .tree-item.child:before {
+  display: none !important;
+}
+
+.folder-icon {
+  width: 14px !important;
+  height: 14px !important;
+  background: var(--accent) !important;
+  border: none !important;
+  border-radius: 3px !important;
+  box-shadow: none !important;
+  position: relative !important;
+  opacity: 0.85;
+}
+.folder-icon:before { display: none !important; }
+.folder-icon:after { display: none !important; }
+
+/* 3. Main Pane & Clean Table */
+.main-pane {
+  background: var(--bg-app) !important;
+  margin: 0 !important;
+  border: none !important;
+}
+
+.table-scroll {
+  background: transparent !important; /* Removes retro background stripes */
   outline: none !important;
 }
 
-dialog {
-  background-color: var(--dialog-bg) !important;
-  color: var(--text-main) !important;
-  border: 1px solid var(--dialog-border) !important;
-  border-radius: 8px !important;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45) !important;
+.downloads-table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  width: 100% !important;
+  font-size: 12px !important;
 }
 
-/* Theme Toggle Button */
-#st-theme-toggle {
-  position: absolute;
-  top: 8px;
-  right: 16px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  border-radius: 16px;
-  background: var(--bg-card);
-  color: var(--text-main);
-  border: 1px solid var(--border-color);
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  z-index: 1000;
+thead th {
+  background: var(--bg-side) !important;
+  color: var(--text-muted) !important;
+  height: 32px !important;
+  font-weight: 600 !important;
+  border-bottom: 1px solid var(--border) !important;
+  border-right: 1px solid var(--border) !important;
+  padding: 4px 10px !important;
 }
-#st-theme-toggle:hover {
-  border-color: var(--accent);
+
+thead th button {
+  color: var(--text-muted) !important;
+  font-weight: 600 !important;
+}
+
+td {
+  height: 34px !important;
+  padding: 4px 10px !important;
+  border-bottom: 1px solid var(--border) !important;
+  border-right: none !important;
+  color: var(--text-main) !important;
+}
+
+.download-row:hover td {
+  background: var(--bg-hover) !important;
+}
+
+.download-row.selected td {
+  background: rgba(56, 189, 248, 0.16) !important;
+  border-bottom-color: var(--accent) !important;
+}
+
+.download-row.selected {
+  outline: none !important;
+}
+
+/* Status Badges */
+.row-status.completed {
+  color: var(--success) !important;
+  font-weight: 600 !important;
+}
+
+.row-status.failed {
+  color: var(--danger) !important;
+  font-weight: 600 !important;
+}
+
+/* File icon */
+.file-type-icon {
+  border-radius: 4px !important;
+  border: 1px solid var(--border) !important;
+  background: var(--bg-surface) !important;
+  color: var(--accent) !important;
+}
+
+/* Status Bar */
+.status-bar {
+  height: 26px !important;
+  background: var(--bg-side) !important;
+  border-top: 1px solid var(--border) !important;
+  color: var(--text-muted) !important;
+  padding: 0 10px !important;
+}
+
+.status-bar > span {
+  border-right: 1px solid var(--border) !important;
+  box-shadow: none !important;
+}
+
+/* Modern Rounded Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--scroll-track);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
 }
