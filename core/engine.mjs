@@ -428,6 +428,10 @@ export class DownloadEngine extends EventEmitter {
         const h = { ...headers };
         if (ranged) { h.Range = `bytes=${start}-${segment.end}`; if (info.validator) h['If-Range'] = info.validator; }
         const response = await request(url, { headers: h, signal });
+        // Facebook / CDN fallback: If server ignores range and gives 200 OK, downgrade to single stream
+        if (ranged && response.statusCode === 200) {
+          ranged = false;
+        }
         if ((ranged && response.statusCode !== 206) || (!ranged && response.statusCode !== 200)) {
           const status = response.statusCode; response.destroy();
           throw failure(`Server returned HTTP ${status}${ranged ? ' instead of a byte range' : ''}.`, transientStatus(status),
