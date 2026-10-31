@@ -277,3 +277,121 @@ td {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--accent);
 }
+
+
+/* --- ST Modern Dark Theme Dialogs, Popups & Menus --- */
+:root {
+  color-scheme: dark !important;
+}
+
+dialog {
+  background: #202227 !important;
+  color: #e0e0e0 !important;
+  border: 1px solid #3c4048 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.75) !important;
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.65) !important;
+  backdrop-filter: blur(2px);
+}
+
+.dialog-title {
+  background: #181a1f !important;
+  border-bottom: 1px solid #2d3139 !important;
+  color: #fff !important;
+  padding: 8px 14px !important;
+}
+
+.dialog-title strong {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #f1f1f1 !important;
+}
+
+.close-button {
+  background: transparent !important;
+  color: #aaa !important;
+  border: none !important;
+  font-size: 16px !important;
+  cursor: pointer !important;
+  border-radius: 4px !important;
+}
+
+.close-button:hover {
+  background: #e81123 !important;
+  color: #fff !important;
+}
+
+.dialog-body {
+  background: #202227 !important;
+  color: #ccc !important;
+  padding: 16px !important;
+}
+
+.dialog-body label, .dialog-body dt {
+  color: #aaa !important;
+}
+
+.dialog-body input, .dialog-body textarea, .dialog-body select {
+  background: #141619 !important;
+  border: 1px solid #3c4048 !important;
+  color: #fff !important;
+  border-radius: 4px !important;
+  padding: 6px 8px !important;
+}
+
+.dialog-body input:focus, .dialog-body textarea:focus, .dialog-body select:focus {
+  border-color: #00a2ed !important;
+  outline: 1px solid #00a2ed !important;
+}
+
+.dialog-footer {
+  background: #181a1f !important;
+  border-top: 1px solid #2d3139 !important;
+  padding: 10px 14px !important;
+}
+
+button.button, .dialog-footer button {
+  background: #2c3036 !important;
+  color: #eee !important;
+  border: 1px solid #454b54 !important;
+  border-radius: 4px !important;
+  padding: 6px 14px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease;
+}
+
+button.button:hover, .dialog-footer button:hover {
+  background: #00a2ed !important;
+  border-color: #00a2ed !important;
+  color: #fff !important;
+}
+
+button.button:disabled, .dialog-footer button:disabled {
+  opacity: 0.4 !important;
+  cursor: default !important;
+}
+
+#idm-context-menu {
+  background: #1e2025 !important;
+  border: 1px solid #3a3f4a !important;
+  border-radius: 6px !important;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.7) !important;
+  padding: 4px !important;
+  font-family: inherit !important;
+  font-size: 12px !important;
+}
+
+#idm-context-menu > div:not([style*="height"]) {
+  border-radius: 4px !important;
+  padding: 6px 14px !important;
+  color: #ddd !important;
+  transition: background 0.1s ease;
+}
+
+#idm-context-menu > div:not([style*="height"]):hover:not([style*="opacity: 0.4"]) {
+  background: #00a2ed !important;
+  color: #fff !important;
+}
