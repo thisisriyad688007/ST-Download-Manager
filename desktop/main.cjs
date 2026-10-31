@@ -242,3 +242,54 @@ electronIpc.handle('get-video-info', async (event, videoUrl) => {
     });
   });
 });
+
+// --- Video Quality Fetcher & Selected Downloader ---
+electronIpc.handle('fetch-video-resolutions', async (event, videoUrl) => {
+  return new Promise((resolve, reject) => {
+    const isPackaged = electronApp.isPackaged;
+    const basePath = isPackaged 
+      ? pathModule.join(process.resourcesPath, 'tools') 
+      : pathModule.join(__dirname, '..', 'tools');
+    const ytdlp = pathModule.join(basePath, 'yt-dlp.exe');
+
+    const proc = spawnProc(ytdlp, ['--dump-single-json', '--no-playlist', videoUrl]);
+    let stdoutData = '';
+    let stderrData = '';
+
+    proc.stdout.on('data', (d) => { stdoutData += d.toString(); });
+    proc.stderr.on('data', (d) => { stderrData += d.toString(); });
+
+    proc.on('close', (code) => {
+      if (code === 0) {
+        try {
+          const info = JSON.parse(stdoutData);
+          const formats = [];
+          const seen = new Set();
+          
+          (info.formats || []).forEach(f => {
+            const height = f.height || 0;
+            const ext = f.ext || 'mp4';
+            const label = height > 0 ? (height + 'p (' + ext + ')') : (f.abr ? Math.round(f.abr) + ' kbps (Audio)' : null);
+              seen.add(label);
+              formats.push({
+                format_id: f.format_id,
+                label: label,
+                ext: ext,
+                filesize: f.filesize || f.filesize_approx || 0,
+                isVideo: height > 0
+              });
+            }
+          });
+          
+          // রেজোলিউশন বড় থেকে ছোট সাজানো
+          formats.sort((a, b) => b.isVideo - a.isVideo);
+          resolve({ title: info.title, thumbnail: info.thumbnail, formats: formats });
+        } catch (e) {
+          reject(e);
+        }
+      } else {
+        reject(new Error(stderrData || 'Failed to fetch resolutions'));
+      }
+    });
+  });
+});
