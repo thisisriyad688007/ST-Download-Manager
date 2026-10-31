@@ -11,3 +11,122 @@
 .progress-window.review-window #add-dialog{position:static;margin:0;width:100%;max-width:none;max-height:none;min-height:100vh;border:0;box-shadow:none;border-radius:0}
 .progress-window.review-window #add-dialog::backdrop{background:#f0f0f0}
 .progress-window.review-window #add-dialog>.dialog-title{display:none}
+
+
+
+/* === Modern Dashboard Theme & Mode Support === */
+:root {
+  --bg-main: #0b0f19;
+  --bg-surface: #151d2f;
+  --bg-card: #1e293b;
+  --border-color: #27354f;
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --accent: #38bdf8;
+  --accent-hover: #0284c7;
+  --row-hover: rgba(56, 189, 248, 0.08);
+  --header-bg: #111827;
+  --dialog-bg: #151d2f;
+  --dialog-border: #334155;
+  --input-bg: #0b0f19;
+  --input-border: #334155;
+  --badge-bg: #1e293b;
+}
+
+[data-theme="light"] {
+  --bg-main: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-card: #f1f5f9;
+  --border-color: #e2e8f0;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --accent: #0284c7;
+  --accent-hover: #0369a1;
+  --row-hover: rgba(2, 132, 199, 0.08);
+  --header-bg: #f1f5f9;
+  --dialog-bg: #ffffff;
+  --dialog-border: #cbd5e1;
+  --input-bg: #ffffff;
+  --input-border: #cbd5e1;
+  --badge-bg: #e2e8f0;
+}
+
+body {
+  background-color: var(--bg-main) !important;
+  color: var(--text-main) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+header, nav, .toolbar, .menu-bar {
+  background-color: var(--bg-surface) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+}
+
+aside, .sidebar, #categories, #categories-pane {
+  background-color: var(--bg-surface) !important;
+  border-right: 1px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+}
+
+table, .download-grid, .transfers-table {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-main) !important;
+}
+
+th {
+  background-color: var(--header-bg) !important;
+  color: var(--text-muted) !important;
+  border-bottom: 2px solid var(--border-color) !important;
+}
+
+td {
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+tr:hover {
+  background-color: var(--row-hover) !important;
+}
+
+input, select, textarea {
+  background-color: var(--input-bg) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--input-border) !important;
+  border-radius: 5px !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent) !important;
+  outline: none !important;
+}
+
+dialog {
+  background-color: var(--dialog-bg) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--dialog-border) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45) !important;
+}
+
+/* Theme Toggle Button */
+#st-theme-toggle {
+  position: absolute;
+  top: 8px;
+  right: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 16px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 1000;
+}
+#st-theme-toggle:hover {
+  border-color: var(--accent);
+}

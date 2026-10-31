@@ -1,4 +1,36 @@
 
+// --- Theme Manager Controller ---
+(function() {
+  const currentTheme = localStorage.getItem('st-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', currentTheme);
+
+  window.toggleAppTheme = function() {
+    const now = document.documentElement.getAttribute('data-theme') || 'dark';
+    const next = now === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('st-theme', next);
+    const btn = document.getElementById('st-theme-toggle');
+    if (btn) btn.innerHTML = next === 'dark' ? '🌙 Dark' : '☀️ Light';
+  };
+
+  function mountButton() {
+    if (document.getElementById('st-theme-toggle')) return;
+    const btn = document.createElement('button');
+    btn.id = 'st-theme-toggle';
+    btn.type = 'button';
+    btn.innerHTML = currentTheme === 'dark' ? '🌙 Dark' : '☀️ Light';
+    btn.onclick = window.toggleAppTheme;
+    document.body.appendChild(btn);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', mountButton);
+  } else {
+    mountButton();
+  }
+})();
+
+
 // --- Playlist Selector Modal ---
 (function initPlaylistModal() {
   if (document.getElementById('st-playlist-dlg')) return;
