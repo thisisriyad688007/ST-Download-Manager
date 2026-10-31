@@ -200,105 +200,14 @@ if (process.argv.includes('--native-host')) {
 }
 
 
-// --- Video Format Extractor & Selector Engine ---
-const { spawn: spawnProc } = require('child_process');
-const { app: electronApp, ipcMain: electronIpc } = require('electron');
-const pathModule = require('path');
-
-electronIpc.handle('get-video-info', async (event, videoUrl) => {
-  return new Promise((resolve, reject) => {
-    const isPackaged = electronApp.isPackaged;
-    const basePath = isPackaged 
-      ? pathModule.join(process.resourcesPath, 'tools') 
-      : pathModule.join(__dirname, '..', 'tools');
-    const ytdlp = pathModule.join(basePath, 'yt-dlp.exe');
-    
-    const proc = spawnProc(ytdlp, ['--dump-single-json', '--no-playlist', videoUrl]);
-    let stdoutData = '';
-    let stderrData = '';
-    
-    proc.stdout.on('data', (d) => { stdoutData += d.toString(); });
-    proc.stderr.on('data', (d) => { stderrData += d.toString(); });
-    
-    proc.on('close', (code) => {
-      if (code === 0) {
-        try {
-          const info = JSON.parse(stdoutData);
-          const formats = (info.formats || [])
-            .filter(f => f.resolution || f.ext === 'm4a')
-            .map(f => ({
-              format_id: f.format_id,
-              resolution: f.resolution || (f.abr ? f.abr + ' kbps (Audio)' : 'Audio'),
-              ext: f.ext,
-              filesize: f.filesize || f.filesize_approx || 0
-            }));
-          resolve({ title: info.title, thumbnail: info.thumbnail, formats });
-        } catch (e) {
-          reject(e);
-        }
-      } else {
-        reject(new Error(stderrData || 'Failed to fetch video formats'));
-      }
-    });
-  });
-});
-
-
-// --- Video Quality Fetcher & Selected Downloader ---
-electronIpc.handle('fetch-video-resolutions', async (event, videoUrl) => {
-  return new Promise((resolve, reject) => {
-    const isPackaged = electronApp.isPackaged;
-    const basePath = isPackaged 
-      ? pathModule.join(process.resourcesPath, 'tools') 
-      : pathModule.join(__dirname, '..', 'tools');
-    const ytdlp = pathModule.join(basePath, 'yt-dlp.exe');
-
-    const proc = spawnProc(ytdlp, ['--dump-single-json', '--no-playlist', videoUrl]);
-    let stdoutData = '';
-    let stderrData = '';
-
-    proc.stdout.on('data', (d) => { stdoutData += d.toString(); });
-    proc.stderr.on('data', (d) => { stderrData += d.toString(); });
-
-    proc.on('close', (code) => {
-      if (code === 0) {
-        try {
-          const info = JSON.parse(stdoutData);
-          const formats = [];
-          const seen = new Set();
-          
-          (info.formats || []).forEach(f => {
-            const height = f.height || 0;
-            const ext = f.ext || 'mp4';
-            const label = height > 0 ? (height + 'p (' + ext + ')') : (f.abr ? Math.round(f.abr) + ' kbps (Audio)' : null);
-            if (label && !seen.has(label)) {
-              seen.add(label);
-              formats.push({
-                format_id: f.format_id,
-                label: label,
-                ext: ext,
-                filesize: f.filesize || f.filesize_approx || 0,
-                isVideo: height > 0
-              });
-            }
-          });
-          
-          formats.sort((a, b) => b.isVideo - a.isVideo);
-          resolve({ title: info.title, thumbnail: info.thumbnail, formats: formats });
-        } catch (e) {
-          reject(e);
-        }
-      } else {
-        reject(new Error(stderrData || 'Failed to fetch resolutions'));
-      }
-    });
-  });
-});
-
 // --- Auto Categorizer & YouTube Quality Handler ---
+const { spawn: ytSpawn } = require('child_process');
+const nodePath = require('path');
+const { app: stApp, ipcMain: stIpc } = require('electron');
+
 function getCategoryForFilename(name) {
-  const ext = (pathModule.extname(name) || '').lowerCase();
-  if (['.mp9', '.mkv', '.webm', '.flv', '.avi', '.mov'].includes(ext)) return 'Video';
+  const ext = (nodePath.extname(name || '') || '').toLowerCase();
+  if (['.mp4', '.mkv', '.webm', '.flv', '.avi', '.mov'].includes(ext)) return 'Video';
   if (['.mp3', '.m4a', '.aac', '.flac', '.wav', '.ogg'].includes(ext)) return 'Music';
   if (['.zip', '.rar', '.7z', '.tar', '.gz', '.iso'].includes(ext)) return 'Compressed';
   if (['.pdf', '.docx', '.doc', '.xlsx', '.pptx', '.txt'].includes(ext)) return 'Documents';
@@ -306,36 +215,52 @@ function getCategoryForFilename(name) {
   return 'Other';
 }
 
-if (typeof electronIpc !== 'undefined') {
-  electronIpc.handle('get-file-category', (event, name) => {
+if (typeof stIpc !== 'undefined') {
+  stIpc.handle('get-file-category', (event, name) => {
     return getCategoryForFilename(name);
   });
 
-  electronIpc.handle('fetch-video-resolutions', async (event, videoUrl) => {
+  stIpc.handle('fetch-video-resolutions', async (event, videoUrl) => {
     return new Promise((resolve, reject) => {
-      const infoProc = spawnProc('bin/yt-dlp.exe', ['--dump-single-json', '--no-playlist', videoUrl]);
-      let out = '', err = '';
-      infoProc.stdout.on('data', d => out += d.toString());
-      infoProc.stderr.on('data', d => err += d.toString());
-      infoProc.on('close', code => {
-        if (code === 0) {
+      const isPackaged = stApp.isPackaged;
+      const basePath = isPackaged 
+        ? nodePath.join(process.resourcesPath, 'tools') 
+        : nodePath.join(__dirname, '..', 'tools');
+      const ytdlp = nodePath.join(basePath, 'yt-dlp.exe');
+
+      const proc = ytSpawn(ytdlp, ['--dump-single-json', '--no-playlist', videoUrl]);
+      let stdoutData = '';
+      let stderrData = '';
+
+      proc.stdout.on('data', (d) => { stdoutData += d.toString(); });
+      proc.stderr.on('data', (d) => { stderrData += d.toString(); });
+
+      proc.on('close', (exitCode) => {
+        if (exitCode === 0) {
           try {
-            const data = JSON.parse(out);
+            const info = JSON.parse(stdoutData);
             const formats = [];
-            // add audio option
----
-            formats.push({ format_id: 'bestaudio/best', label: 'Audio Only (MP3/M6A)', isAudio: true });
+            formats.push({ format_id: 'bestaudio/best', label: 'Audio Only (MP3/M4A)', isAudio: true });
+            
             const seen = new Set();
-            (data.formats || []).reverse().forEach(f => {
+            (info.formats || []).forEach(f => {
               const h = f.height || 0;
               if (h >= 144 && !seen.has(h)) {
                 seen.add(h);
-                formats.push({ format_id: f.height ? `bestvideo[hight<=${h}]+bestaudio/best` : f.format_id, label: `${h}p HD Video`, isAudio: false });
+                formats.push({
+                  format_id: 'bestvideo[height<=' + h + ']+bestaudio/best',
+                  label: h + 'p HD Video',
+                  isAudio: false
+                });
               }
             });
-            resolve({ title: data.title, formats: formats });
-          } catch(e) { reject(e); }
-        } else { reject(new Error(err || 'Error fetching video formats')); }
+            resolve({ title: info.title, formats: formats });
+          } catch (e) {
+            reject(e);
+          }
+        } else {
+          reject(new Error(stderrData || 'Failed to fetch video formats'));
+        }
       });
     });
   });
