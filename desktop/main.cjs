@@ -371,3 +371,16 @@ if (typeof coreIpc !== 'undefined') {
     return { active: activeSleepBlockerId !== null };
   });
 }
+
+
+// --- Social Media & Audio Extraction Flags ---
+function getEnhancedYtDlpArgs(url, isAudioOnly, wantSubtitles) {
+  const args = ['--no-check-certificates', '--no-warnings', '--prefer-free-formats'];
+  if (isAudioOnly) {
+    args.push('-x', '--audio-format', 'mp3', '--audio-quality', '0');
+  }
+  if (wantSubtitles) {
+    args.push('--write-subs', '--write-auto-subs', '--sub-langs', 'all,-live_chat');
+  }
+  return args;
+}

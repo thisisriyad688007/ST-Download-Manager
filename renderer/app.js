@@ -1,4 +1,69 @@
 
+// --- Storage & Media Grabber Enhancements ---
+(function() {
+  // ক্যাটাগরি পরিবর্তনের সাথে সাথে স্বয়ংক্রিয় সাব-ফোল্ডার পাথ সেট করা
+  window.updateCategoryFolder = function(category) {
+    const dirInput = document.getElementById('add-directory');
+    if (!dirInput) return;
+    const baseDir = localStorage.getItem('st-base-download-dir') || dirInput.value || '';
+    if (!baseDir) return;
+
+    const cleanBase = baseDir.replace(/\\[^\\]+$/, '').replace(/\/[^\/]+$/, '');
+    const map = {
+      'Video': 'Video',
+      'Audio': 'Music',
+      'Music': 'Music',
+      'Archives': 'Compressed',
+      'Documents': 'Documents',
+      'Programs': 'Programs'
+    };
+
+    if (category && map[category]) {
+      const sep = cleanBase.includes('\\') ? '\\' : '/';
+      dirInput.value = `${cleanBase}${sep}${map[category]}`;
+    }
+  };
+
+  // সোশ্যাল মিডিয়া লিংক ডিটেকশন (Facebook, Instagram, TikTok)
+  window.isSocialMediaUrl = function(url) {
+    if (!url) return false;
+    return /facebook\.com|fb\.watch|instagram\.com|tiktok\.com/i.test(url);
+  };
+
+  // ডুপ্লিকেট চেকার
+  window.checkDuplicateDownload = function(url, filename) {
+    const rows = document.querySelectorAll('#download-list tr');
+    for (let r of rows) {
+      const text = r.textContent || '';
+      if (filename && text.includes(filename)) return true;
+    }
+    return false;
+  };
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const catSelect = document.getElementById('download-category');
+    if (catSelect) {
+      catSelect.addEventListener('change', (e) => {
+        window.updateCategoryFolder(e.target.value);
+      });
+    }
+
+    const urlTextarea = document.getElementById('download-urls');
+    if (urlTextarea) {
+      urlTextarea.addEventListener('input', (e) => {
+        const val = e.target.value.trim();
+        if (window.isSocialMediaUrl(val)) {
+          if (catSelect) {
+            catSelect.value = 'Video';
+            window.updateCategoryFolder('Video');
+          }
+        }
+      });
+    }
+  });
+})();
+
+
 // --- ST Download Manager Audio & Power Handler ---
 (function() {
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
