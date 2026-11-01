@@ -96,7 +96,7 @@ function expandWildcards(text) {
 // --- GitHub In-App Update Checker ---
 window.checkForUpdates = async function(manual = true) {
   const REPO = 'thisisriyad688007/ST-Download-Manager';
-  const CURRENT_VERSION = 'v0.1.0';
+  const CURRENT_VERSION = 'v0.1.5';
   try {
     if (manual) alert('Checking for updates from GitHub...');
     const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, {
@@ -919,11 +919,11 @@ async function start() { try { await refresh(); if (typeof api.subscribe === 'fu
             });
           } else {
             title.textContent = 'ST Download Manager is up to date!';
-            desc.textContent = 'You are running the latest version (' + (res?.current || 'v0.1.4') + ').';
+            desc.textContent = 'You are running the latest version (' + (res?.current || 'v0.1.5') + ').';
           }
         } catch (e) {
           title.textContent = 'ST Download Manager is up to date!';
-          desc.textContent = 'You are running the latest version (v0.1.4).';
+          desc.textContent = 'You are running the latest version (v0.1.5).';
         }
         return;
       }

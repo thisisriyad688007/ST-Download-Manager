@@ -1,6 +1,6 @@
 {
   "name": "st-download-manager",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A Windows download manager with segmented transfers and browser video capture",
   "main": "desktop/main.cjs",
   "private": true,
@@ -18,7 +18,8 @@
     "test": "node --test tests/*.test.mjs integration/*.test.cjs extension/*.test.cjs",
     "package": "electron-builder --win dir",
     "dist": "electron-builder --win nsis --x64 --publish never",
-    "dist:portable": "electron-builder --win portable --x64 --publish never"
+    "dist:portable": "electron-builder --win portable --x64 --publish never",
+    "bump": "python3 update_version.py"
   },
   "devDependencies": {
     "electron": "44.9.1",
