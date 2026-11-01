@@ -15,8 +15,8 @@ function showIDMContextMenu(x, y, d) {
   const menu = createContextMenu();
   const status = statusOf(d);
   const items = [
-    { label: "Open", disabled: status !== "completed", action: () => call("openFile", d.path) },
-    { label: "Open folder", disabled: status !== "completed", action: () => call("revealFile", d.path) },
+    { label: "Open", disabled: status !== "completed", action: () => call("openFile", d.path || d.targetPath || (d.saveDirectory && d.filename ? (d.saveDirectory + "/" + d.filename) : "")) },
+    { label: "Open folder", disabled: status !== "completed", action: () => call("revealFile", d.path || d.targetPath || (d.saveDirectory && d.filename ? (d.saveDirectory + "/" + d.filename) : "")) },
     { type: "separator" },
     { label: "Resume", disabled: !canResume(d), action: () => performAction(d, "resume") },
     { label: "Stop", disabled: !canPause(d), action: () => performAction(d, "pause") },

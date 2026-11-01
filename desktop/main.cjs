@@ -197,6 +197,28 @@ if (process.argv.includes('--native-host')) {
       for (const [name, handler] of Object.entries(handlers)) 
 
 
+    
+    // Shell Actions for Context Menu
+    ipcMain.handle("downloader:openFile", async (_e, filePath) => {
+      try {
+        if (!filePath) return false;
+        await shell.openPath(filePath);
+        return true;
+      } catch (err) {
+        return false;
+      }
+    });
+
+    ipcMain.handle("downloader:revealFile", async (_e, filePath) => {
+      try {
+        if (!filePath) return false;
+        shell.showItemInFolder(filePath);
+        return true;
+      } catch (err) {
+        return false;
+      }
+    });
+
     ipcMain.handle(`downloader:${name}`, (event, data) => {
         if (![window,...progressWindows.values()].some(w=>!w.isDestroyed()&&event.senderFrame===w.webContents.mainFrame)) throw new Error('Untrusted renderer.');
         return handler(data, BrowserWindow.fromWebContents(event.sender));
