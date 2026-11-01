@@ -1290,3 +1290,273 @@ body.progress-window .connections-scroll {
   background: #ffffff !important;
   border-radius: 6px !important;
 }
+
+
+
+/* ==========================================================================
+   MASTER DIALOG & POPUP FIXES (CLEAN, SCROLLABLE, PIXEL-PERFECT)
+   ========================================================================== */
+
+/* সাধারণ ডায়ালগগুলো স্ক্রিনে পারফেক্ট সাইজ ও অটো স্ক্রলে থাকবে */
+dialog {
+  margin: auto !important;
+  inset: 0 !important;
+  width: min(580px, calc(100vw - 32px)) !important;
+  max-height: calc(100vh - 40px) !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 20px 30px rgba(0, 0, 0, 0.2) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+dialog::backdrop {
+  background: rgba(15, 23, 42, 0.45) !important;
+  backdrop-filter: blur(2px) !important;
+}
+
+/* ডায়ালগ ফর্ম ও বডি - যাতে বাটন কখনো গায়েব না হয় */
+dialog form {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  max-height: calc(100vh - 40px) !important;
+  overflow: hidden !important;
+}
+
+.dialog-title {
+  height: 44px !important;
+  min-height: 44px !important;
+  background: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0 16px !important;
+}
+
+.dialog-body {
+  padding: 16px 20px !important;
+  overflow-y: auto !important;
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+/* ফুটার বাটন সবসময় নিচে স্টিকি থাকবে */
+.dialog-footer {
+  height: 52px !important;
+  min-height: 52px !important;
+  background: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  padding: 0 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Download File Info এর সুন্দর অ্যালাইনমেন্ট */
+#add-dialog .form-line {
+  display: grid !important;
+  grid-template-columns: 85px 1fr !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+#add-dialog .form-line > label {
+  text-align: right !important;
+  color: #475569 !important;
+  font-weight: 500 !important;
+}
+
+#add-dialog .address-line {
+  align-items: flex-start !important;
+}
+
+#add-dialog .address-line > label {
+  padding-top: 6px !important;
+}
+
+#add-dialog .address-help {
+  margin: -6px 0 4px 95px !important;
+  font-size: 11px !important;
+  color: #64748b !important;
+}
+
+/* --- ছবি ২: প্লেলিস্ট ডায়ালগ / ব্যাচ পপআপ স্টাইল --- */
+dialog[id*="playlist"], #playlist-dialog, dialog:has(input[type="checkbox"]) {
+  max-width: 650px !important;
+}
+
+.playlist-selector, #playlist-items {
+  max-height: 380px !important;
+  overflow-y: auto !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  padding: 8px !important;
+  background: #ffffff !important;
+}
+
+/* --- ছবি ৩: প্রগ্রেস উইন্ডো থেকে সাদা প্যাচ ও ক্লোজ বাটন পুরোপুরি দূর করা --- */
+body.progress-window {
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+}
+
+body.progress-window .dialog-footer {
+  display: none !important;
+}
+
+body.progress-window #details-dialog {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+body.progress-window .dialog-body {
+  height: 100vh !important;
+  max-height: 100vh !important;
+  padding: 10px 14px !important;
+  overflow-y: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+}
+
+body.progress-window #connection-details {
+  flex: 1 !important;
+  min-height: 120px !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+body.progress-window .connections-scroll {
+  flex: 1 !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  background: #ffffff !important;
+}
+
+
+
+/* ==========================================================================
+   FINAL BULLET-PROOF OVERRIDES FOR DIALOGS, PROGRESS & PLAYLIST
+   ========================================================================== */
+
+/* ১. Download File Info ডায়ালগে বাটন দৃশ্যমান রাখা ও স্ক্রলিং */
+#add-dialog {
+  display: flex !important;
+  flex-direction: column !important;
+  max-height: min(580px, calc(100vh - 30px)) !important;
+  height: auto !important;
+}
+
+#add-dialog form#add-form {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+#add-dialog .dialog-body {
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  padding: 16px 20px !important;
+  gap: 10px !important;
+}
+
+#add-dialog .dialog-footer {
+  flex-shrink: 0 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  padding: 12px 20px !important;
+  background: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+}
+
+/* ২. প্রগ্রেস উইন্ডোর সাদা প্যাচ ও Close বাটন চিরতরে নিষ্ক্রিয় করা */
+body.progress-window .dialog-footer,
+body.progress-window .dialog-title,
+body.progress-window #details-dialog > .dialog-title,
+body.progress-window #details-dialog > .dialog-footer {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+body.progress-window {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #f8fafc !important;
+  overflow: hidden !important;
+}
+
+body.progress-window #details-dialog {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+body.progress-window .dialog-body {
+  height: 100vh !important;
+  max-height: 100vh !important;
+  padding: 10px 14px !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow-y: auto !important;
+  gap: 6px !important;
+}
+
+body.progress-window #connection-details {
+  flex: 1 !important;
+  min-height: 110px !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+body.progress-window .connections-scroll {
+  flex: 1 !important;
+  height: auto !important;
+  max-height: none !important;
+  min-height: 90px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  border-radius: 6px !important;
+}
+
+/* ৩. প্লেলিস্ট মোডাল কন্টেইনার */
+#playlist-modal {
+  display: none;
+}
