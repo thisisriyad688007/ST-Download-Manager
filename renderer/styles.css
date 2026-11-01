@@ -788,3 +788,26 @@ body.progress-window .connections-scroll {
 
 #st-playlist-dlg:not([open]) { display: none !important; }
 #st-pl-list { max-height: 240px !important; overflow-y: auto !important; }
+
+
+
+/* ডিফল্ট অবস্থায় কমপ্লিট প্যানেল সম্পূর্ণ লুকানো থাকবে */
+.completed-panel {
+  display: none !important;
+}
+
+/* শুধুমাত্র ডাউনলোড ১০০% শেষ হলে এবং .is-complete ক্লাস আসলেই এটি দেখা যাবে */
+#details-dialog.is-complete .completed-panel {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  padding: 20px !important;
+  background: #ffffff !important;
+  gap: 12px !important;
+  justify-content: center !important;
+}
+
+#details-dialog.is-complete .dialog-body,
+#details-dialog.is-complete .dialog-footer {
+  display: none !important;
+}

@@ -215,22 +215,35 @@ if (process.argv.includes('--native-host')) {
         try {
           const https = require('https');
           const currentVersion = 'v0.1.4';
-          const releaseData = await new Promise((resolve, reject) => {
-            const req = https.get('https://api.github.com/repos/thisisriyad688007/ST-Download-Manager/releases/latest', {
-              headers: { 'User-Agent': 'ST-Download-Manager' }
+          
+          const fetchUrl = (url) => new Promise((resolve, reject) => {
+            const req = https.get(url, {
+              headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ST-Download-Manager',
+                'Accept': 'application/vnd.github.v3+json'
+              }
             }, res => {
+              if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+                return resolve(fetchUrl(res.headers.location));
+              }
               let body = '';
               res.on('data', c => body += c);
               res.on('end', () => {
-                try { resolve(JSON.parse(body)); } catch (e) { reject(e); }
+                try {
+                  resolve(JSON.parse(body));
+                } catch (e) {
+                  resolve({ tag_name: currentVersion });
+                }
               });
             });
-            req.on('error', reject);
-            req.setTimeout(5000, () => { req.destroy(); reject(new Error('Timeout')); });
+            req.on('error', () => resolve({ tag_name: currentVersion }));
+            req.setTimeout(6000, () => { req.destroy(); resolve({ tag_name: currentVersion }); });
           });
+
+          const releaseData = await fetchUrl('https://api.github.com/repos/thisisriyad688007/ST-Download-Manager/releases/latest');
           const latestTag = releaseData.tag_name || currentVersion;
           return {
-            hasUpdate: latestTag !== currentVersion,
+            hasUpdate: latestTag !== currentVersion && latestTag.startsWith('v'),
             latest: latestTag,
             current: currentVersion,
             url: releaseData.html_url || 'https://github.com/thisisriyad688007/ST-Download-Manager/releases'
