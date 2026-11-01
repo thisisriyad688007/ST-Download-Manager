@@ -395,3 +395,294 @@ button.button:disabled, .dialog-footer button:disabled {
   background: #00a2ed !important;
   color: #fff !important;
 }
+
+
+
+/* ==========================================================================
+   NEXT-LEVEL MODERN DOWNLOAD MANAGER UI THEME (ULTRA-CLEAN FLUENT STYLE)
+   ========================================================================== */
+
+:root {
+  --bg-app: #0f141c;
+  --bg-side: #161d27;
+  --bg-surface: #1e2634;
+  --bg-card: #252f40;
+  --bg-hover: rgba(56, 189, 248, 0.15);
+  --border: #2a3547;
+  --border-focus: #38bdf8;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent: #0ea5e9;
+  --accent-gradient: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
+  --success: #10b981;
+  --success-gradient: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  --danger: #ef4444;
+  --btn-bg: #222c3d;
+  --btn-border: #334155;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-glow: 0 0 16px rgba(14, 165, 233, 0.35);
+}
+
+body {
+  font-family: var(--font-family) !important;
+  background: var(--bg-app) !important;
+  color: var(--text-main) !important;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- Toolbar Refinement --- */
+.toolbar {
+  background: var(--bg-side) !important;
+  border-top: 1px solid var(--border) !important;
+  border-bottom: 1px solid var(--border) !important;
+  height: 68px !important;
+  padding: 4px 8px !important;
+  gap: 4px !important;
+}
+
+.tool {
+  border-radius: var(--radius-sm) !important;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  color: var(--text-muted) !important;
+}
+
+.tool:hover:not(:disabled) {
+  background: var(--bg-surface) !important;
+  color: var(--text-main) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.tool:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.tool span {
+  font-size: 11px !important;
+  font-weight: 500 !important;
+}
+
+/* --- Category Sidebar --- */
+.categories {
+  background: var(--bg-side) !important;
+  border-right: 1px solid var(--border) !important;
+  margin: 0 !important;
+  padding: 8px 6px !important;
+}
+
+.pane-heading {
+  background: transparent !important;
+  color: var(--text-muted) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  padding: 4px 8px !important;
+  margin-bottom: 4px;
+}
+
+.tree-item {
+  border-radius: var(--radius-sm) !important;
+  height: 26px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: var(--text-muted) !important;
+  padding: 0 8px !important;
+  transition: all 0.15s ease !important;
+}
+
+.tree-item:hover {
+  background: var(--bg-surface) !important;
+  color: var(--text-main) !important;
+}
+
+.tree-item.selected {
+  background: var(--accent) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.4) !important;
+}
+
+/* --- Main Pane & Table --- */
+.main-pane {
+  background: var(--bg-app) !important;
+  border: 0 !important;
+  margin: 0 !important;
+}
+
+.table-scroll {
+  background: transparent !important;
+}
+
+.downloads-table {
+  border-collapse: collapse !important;
+}
+
+thead th {
+  background: var(--bg-side) !important;
+  border-bottom: 1px solid var(--border) !important;
+  border-right: 1px solid var(--border) !important;
+  color: var(--text-muted) !important;
+  font-weight: 600 !important;
+  font-size: 11px !important;
+  height: 30px !important;
+  padding: 4px 10px !important;
+}
+
+td {
+  border-bottom: 1px solid var(--border) !important;
+  border-right: 1px solid var(--border) !important;
+  color: var(--text-main) !important;
+  padding: 5px 10px !important;
+  font-size: 11.5px !important;
+  height: 28px !important;
+}
+
+.download-row:hover td {
+  background: var(--bg-hover) !important;
+}
+
+.download-row.selected td {
+  background: rgba(14, 165, 233, 0.22) !important;
+  color: #fff !important;
+}
+
+/* --- Modern Dialogs (Download File Info & Progress) --- */
+dialog {
+  background: var(--bg-side) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-md), var(--shadow-glow) !important;
+  backdrop-filter: blur(16px);
+}
+
+dialog::backdrop {
+  background: rgba(5, 8, 13, 0.75) !important;
+  backdrop-filter: blur(4px);
+}
+
+.dialog-title {
+  background: var(--bg-surface) !important;
+  border-bottom: 1px solid var(--border) !important;
+  height: 42px !important;
+  padding: 0 16px !important;
+}
+
+.dialog-title strong {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--text-main) !important;
+}
+
+.close-button {
+  color: var(--text-muted) !important;
+  transition: all 0.15s ease;
+  border-radius: 4px;
+}
+
+.close-button:hover {
+  background: #ef4444 !important;
+  color: #fff !important;
+}
+
+/* --- Form Fields & Buttons --- */
+input, textarea, select {
+  background: var(--bg-app) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  color: var(--text-main) !important;
+  padding: 6px 10px !important;
+  font-size: 12px !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.25) !important;
+  outline: none !important;
+}
+
+.button, .small-button {
+  background: var(--btn-bg) !important;
+  border: 1px solid var(--btn-border) !important;
+  color: var(--text-main) !important;
+  border-radius: var(--radius-sm) !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  box-shadow: var(--shadow-sm);
+}
+
+.button:hover:not(:disabled), .small-button:hover:not(:disabled) {
+  background: var(--bg-surface) !important;
+  border-color: var(--accent) !important;
+  color: #fff !important;
+}
+
+.button.primary {
+  background: var(--accent-gradient) !important;
+  border: 0 !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 10px rgba(14, 165, 233, 0.4) !important;
+}
+
+.button.primary:hover:not(:disabled) {
+  opacity: 0.95;
+  transform: translateY(-1px);
+}
+
+/* --- Status & Progress Bars (Smooth High-Tech Look) --- */
+progress {
+  height: 12px !important;
+  background: var(--bg-app) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px !important;
+  overflow: hidden;
+}
+
+progress::-webkit-progress-bar {
+  background: var(--bg-app) !important;
+}
+
+progress::-webkit-progress-value {
+  background: var(--accent-gradient) !important;
+  border-radius: 6px !important;
+  transition: width 0.25s ease-out;
+}
+
+.segment-map {
+  background: var(--bg-app) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  height: 16px !important;
+}
+
+.segment-map progress::-webkit-progress-value {
+  background: linear-gradient(90deg, #0ea5e9, #38bdf8, #10b981) !important;
+}
+
+.details-content dt {
+  color: var(--text-muted) !important;
+  font-weight: 500 !important;
+}
+
+.details-content dd {
+  color: var(--text-main) !important;
+  font-weight: 600 !important;
+}
+
+.status-bar {
+  background: var(--bg-side) !important;
+  border-top: 1px solid var(--border) !important;
+  color: var(--text-muted) !important;
+  padding: 4px 10px !important;
+  height: 24px !important;
+}

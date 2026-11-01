@@ -6,55 +6,11 @@
 <div class="notification" id="toast" role="status" hidden><span id="toast-text"></span><button id="dismiss-toast" aria-label="Dismiss notification">×</button></div>
 
 <dialog id="add-dialog" aria-labelledby="add-title"><form id="add-form"><div class="dialog-title"><strong id="add-title">Download File Info</strong><button type="button" data-close class="close-button" aria-label="Close">×</button></div><div class="dialog-body"><div class="form-line address-line"><label for="download-urls">URL:</label><textarea id="download-urls" rows="2" required spellcheck="false" placeholder="https://example.com/file.zip"></textarea></div><p class="field-help address-help">Enter one URL per line for a batch download.</p><div class="form-line"><label for="download-category">Category:</label><select id="download-category"><option value="">Automatic</option><option>Video</option><option>Audio</option><option>Archives</option><option>Documents</option><option>Programs</option><option>Other</option></select></div><div class="form-line"><label for="download-filename">Save As:</label><input id="download-filename" placeholder="Original file name (optional)" maxlength="240"></div><div class="form-line"><label for="add-directory">Save to:</label><input id="add-directory" readonly><button type="button" id="add-browse" class="small-button" aria-label="Choose download folder">…</button></div><div class="form-line"><label for="download-description">Description:</label><input id="download-description" maxlength="1000"></div><div class="form-line"><label for="download-schedule">Start at:</label><input id="download-schedule" type="datetime-local"><span class="field-help">Optional</span></div><p class="form-error" id="add-error" role="alert" hidden></p></div><div class="dialog-footer"><button type="button" class="button" id="paste-button">Paste</button><span class="spacer"></span><button type="submit" class="button" id="add-later" data-queue-only="true">Download Later</button><button type="submit" class="button primary" id="add-submit">Start Download</button><button type="button" class="button" data-close>Cancel</button></div></form>
-      <fieldset style="margin-top: 10px; border: 1px solid #3c4048; padding: 10px; border-radius: 4px;">
-        <legend style="padding: 0 4px; font-size: 11px; font-weight: 600;">Custom File Extensions & Folders</legend>
-        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 11px;">
-          <div class="form-line">
-            <label for="cat-select" style="min-width: 90px;">Category:</label>
-            <select id="cat-select" style="flex: 1;">
-              <option value="Compressed">Compressed</option>
-              <option value="Documents">Documents</option>
-              <option value="Music">Music</option>
-              <option value="Programs">Programs</option>
-              <option value="Video">Video</option>
-            </select>
-          </div>
-          <div class="form-line">
-            <label for="cat-extensions" style="min-width: 90px;">Extensions:</label>
-            <input id="cat-extensions" style="flex: 1;" placeholder="e.g. zip, rar, 7z">
-          </div>
-          <div class="form-line">
-            <label for="cat-folder" style="min-width: 90px;">Target Folder:</label>
-            <input id="cat-folder" style="flex: 1;" placeholder="Default / custom path">
-          </div>
-        </div>
-      </fieldset>
+      
 
-      <fieldset style="margin-top: 10px; border: 1px solid #3c4048; padding: 10px; border-radius: 4px;">
-        <legend style="padding: 0 4px; font-size: 11px; font-weight: 600;">Proxy / VPN Support</legend>
-        <div style="display: flex; flex-direction: column; gap: 6px; font-size: 11px;">
-          <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
-            <input type="checkbox" id="proxy-enabled"> Use HTTP / SOCKS5 Proxy Server
-          </label>
-          <div class="form-line">
-            <label for="proxy-url" style="min-width: 80px;">Proxy URL:</label>
-            <input id="proxy-url" placeholder="http://127.0.0.1:8080 or socks5://127.0.0.1:1080" style="flex: 1;">
-          </div>
-        </div>
-      </fieldset>
+      
 
-      <fieldset style="margin-top: 10px; border: 1px solid #3c4048; padding: 10px; border-radius: 4px;">
-        <legend style="padding: 0 4px; font-size: 11px; font-weight: 600;">Site Logins / Password Manager</legend>
-        <div style="display: flex; flex-direction: column; gap: 6px; font-size: 11px;">
-          <div class="form-line">
-            <input id="login-site" placeholder="Site / Domain (e.g. example.com)" style="flex: 1.2;">
-            <input id="login-user" placeholder="User" style="flex: 1;">
-            <input id="login-pass" type="password" placeholder="Pass" style="flex: 1;">
-            <button class="small-button" id="btn-add-login" type="button" style="padding: 4px 8px;">Add</button>
-          </div>
-          <div id="logins-list" style="max-height: 80px; overflow-y: auto; background: #141619; border: 1px solid #3c4048; padding: 4px; border-radius: 3px; font-family: monospace; font-size: 10px;"></div>
-        </div>
-      </fieldset>
+      
 
     </div>
   </form>
