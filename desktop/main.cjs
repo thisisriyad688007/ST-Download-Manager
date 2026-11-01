@@ -202,8 +202,8 @@ if (process.argv.includes('--native-host')) {
         openProgress: async ({id}) => {
           const d=engine.downloads.find(d=>d.id===id); if(!d)throw new Error('Download not found.');
           if(progressWindows.has(id)){showProgress(progressWindows.get(id));return;}
-          const progress=new BrowserWindow({width:575,height:460,minWidth:540,minHeight:420,title:d.filename,icon:appIconPath,backgroundColor:'#f0f0f0',autoHideMenuBar:true,webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
-          progress.setMenu(null);progressWindows.set(id,progress);progressWindowSizes.set(progress,{expanded:{width:575,height:460}});
+          const progress=new BrowserWindow({width:580,height:500,minWidth:540,minHeight:460,title:d.filename,icon:appIconPath,backgroundColor:'#f0f0f0',autoHideMenuBar:true,webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
+          progress.setMenu(null);progressWindows.set(id,progress);progressWindowSizes.set(progress,{expanded:{width:580,height:500}});
           if(d.status==='complete'){progress.setMinimumSize(470,270);progress.setSize(480,280);progress.setTitle('Download complete');}
           progress.on('closed',()=>progressWindows.delete(id));
           progress.webContents.setWindowOpenHandler(()=>({action:'deny'}));
@@ -301,7 +301,7 @@ ipcMain.handle(`downloader:${name}`, (event, data) => {
         return handler(data, BrowserWindow.fromWebContents(event.sender));
       });
       ipcMain.handle('downloader:closeProgress',event=>{for(const progress of progressWindows.values())if(event.senderFrame===progress.webContents.mainFrame){progress.close();break;}});
-      ipcMain.handle('downloader:resizeProgress',(event,{expanded}={})=>{for(const progress of progressWindows.values())if(event.senderFrame===progress.webContents.mainFrame){const remembered=progressWindowSizes.get(progress)||{expanded:{width:575,height:460}},[width,height]=progress.getSize();if(expanded){progress.setMinimumSize(540,440);progress.setSize(Math.max(540,remembered.expanded.width),Math.max(440,remembered.expanded.height),true);}else{if(height>360)remembered.expanded={width,height};progressWindowSizes.set(progress,remembered);progress.setMinimumSize(540,325);progress.setSize(Math.max(540,width),340,true);}return;}});
+      ipcMain.handle('downloader:resizeProgress',(event,{expanded}={})=>{for(const progress of progressWindows.values())if(event.senderFrame===progress.webContents.mainFrame){const remembered=progressWindowSizes.get(progress)||{expanded:{width:580,height:500}},[width,height]=progress.getSize();if(expanded){progress.setMinimumSize(540,440);progress.setSize(Math.max(540,remembered.expanded.width),Math.max(440,remembered.expanded.height),true);}else{if(height>360)remembered.expanded={width,height};progressWindowSizes.set(progress,remembered);progress.setMinimumSize(540,325);progress.setSize(Math.max(540,width),340,true);}return;}});
       window = new BrowserWindow({ show: !process.argv.includes('--browser-download'), width: 805, height: 465, minWidth: 760, minHeight: 450,
         title: 'ST Download Manager', icon: appIconPath, backgroundColor: '#f0f0f0', autoHideMenuBar: false,
         webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true } });

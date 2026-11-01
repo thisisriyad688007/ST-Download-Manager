@@ -714,7 +714,7 @@ function acceptSnapshot(snapshot) { if (!snapshot || !Array.isArray(snapshot.dow
     }
   } else if (!$$('dialog[open]').length) {
     const review = state.downloads.find(d => d.needsReview && !dismissedReviews.has(d.id));
-    if (review) openReview(review.id);
+    if (review && !dismissedReviews.has(review.id) && !$$('dialog[open]').length) openReview(review.id);
   } }
 async function refresh() { acceptSnapshot(await call('snapshot')); }
 function selected() { return state.downloads.find(d => d.id === selectedId); }

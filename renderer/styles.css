@@ -1754,3 +1754,103 @@ body.review-window #add-dialog .dialog-footer {
   background: rgba(15, 23, 42, 0.45) !important;
   backdrop-filter: blur(2px) !important;
 }
+
+
+
+/* ==========================================================================
+   FINAL BULLET-PROOF FIXES FOR ALL DIALOGS & BUTTONS
+   ========================================================================== */
+
+/* বন্ধ থাকা কোনো ডায়ালগ কখনো আসবে না */
+dialog:not([open]) {
+  display: none !important;
+}
+
+/* ওপেন থাকা ডায়ালগ সুন্দর সেন্টারে থাকবে এবং বাটন সবসময় দৃশ্যমান থাকবে */
+dialog[open] {
+  margin: auto !important;
+  inset: 0 !important;
+  position: fixed !important;
+  width: min(540px, calc(100vw - 32px)) !important;
+  max-height: 88vh !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.22) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  z-index: 9999 !important;
+}
+
+dialog[open]::backdrop {
+  background: rgba(15, 23, 42, 0.45) !important;
+  backdrop-filter: blur(2px) !important;
+}
+
+dialog[open] form {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  max-height: 88vh !important;
+  overflow: hidden !important;
+}
+
+dialog[open] .dialog-body {
+  padding: 16px 20px !important;
+  overflow-y: auto !important;
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+dialog[open] .dialog-footer {
+  height: 52px !important;
+  min-height: 52px !important;
+  background: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  padding: 0 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+/* ব্রাউজার ডাউনলোড উইন্ডোর ক্ষেত্রে ফুল স্ক্রিন এডজাস্টমেন্ট */
+body.review-window {
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100vh !important;
+  background: #ffffff !important;
+  overflow: hidden !important;
+}
+
+body.review-window .app-shell,
+body.review-window #details-dialog {
+  display: none !important;
+}
+
+body.review-window #add-dialog {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+body.review-window #add-dialog > .dialog-title {
+  display: none !important;
+}
+
+/* প্লেলিস্ট উইন্ডো স্টাইল */
+#st-playlist-dlg[open] {
+  width: min(600px, calc(100vw - 32px)) !important;
+  max-height: 85vh !important;
+}
