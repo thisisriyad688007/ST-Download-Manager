@@ -153,11 +153,7 @@ if (process.argv.includes('--native-host')) {
         await readyForDownloads;
         const reviewOnly = payload.startNow !== true && engine.settings.confirmBrowserDownloads;
         const ids = await engine.add({ ...payload, reviewOnly, reuseActive: true });
-        if (reviewOnly) {
-          await handlers.reviewDownload({ id: ids[0] });
-        } else {
-          await handlers.openProgress({ id: ids[0] });
-        }
+        await handlers.openProgress({ id: ids[0] });
         return ids;
       } }); }
       catch (error) { dialog.showErrorBox('Browser connection unavailable', error.message); }
