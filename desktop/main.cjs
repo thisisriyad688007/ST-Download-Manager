@@ -151,8 +151,13 @@ if (process.argv.includes('--native-host')) {
       const readyForDownloads = new Promise(resolve => { desktopReady = resolve; });
       try { bridge = await startBridge(engine, { dataDirectory: app.getPath('userData'), onDownload: async payload => {
         await readyForDownloads;
-        const ids = await engine.add({ ...payload, reviewOnly: false, reuseActive: true });
-        await handlers.openProgress({ id: ids[0] });
+        const reviewOnly = payload.startNow !== true && engine.settings.confirmBrowserDownloads;
+        const ids = await engine.add({ ...payload, reviewOnly, reuseActive: true });
+        if (reviewOnly) {
+          await handlers.reviewDownload({ id: ids[0] });
+        } else {
+          await handlers.openProgress({ id: ids[0] });
+        }
         return ids;
       } }); }
       catch (error) { dialog.showErrorBox('Browser connection unavailable', error.message); }

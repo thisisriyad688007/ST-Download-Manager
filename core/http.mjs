@@ -46,12 +46,31 @@ export async function request(url, { method = 'GET', headers = {}, signal, redir
 }
 
 export async function probe(url, headers, signal) {
-  let response = await request(url, { method: 'HEAD', headers, signal });
-  const headStatus = response.statusCode;
-  const headHasMetadata = response.headers['content-length'] || response.headers['content-range'] ||
-    response.headers['accept-ranges'] === 'bytes';
-  if (![200, 206].includes(response.statusCode) || !headHasMetadata) {
-    response.resume();
+  let response = null;
+  let headStatus = null;
+  let headHasMetadata = false;
+
+  // HEAD মেথড স্টল হতে পারে তাই ৫ সেকেন্ডের অভ্যন্তরীণ টাইমআউট ব্যবহার করা হলো
+  try {
+    const headCtrl = new AbortController();
+    const onParentAbort = () => headCtrl.abort();
+    if (signal) signal.addEventListener('abort', onParentAbort, { once: true });
+    const timer = setTimeout(() => headCtrl.abort(), 5000);
+
+    response = await request(url, { method: 'HEAD', headers, signal: headCtrl.signal });
+    clearTimeout(timer);
+    if (signal) signal.removeEventListener('abort', onParentAbort);
+
+    headStatus = response.statusCode;
+    headHasMetadata = !!(response.headers['content-length'] || response.headers['content-range'] ||
+      response.headers['accept-ranges'] === 'bytes');
+  } catch (err) {
+    // HEAD ফেইল বা টাইমআউট হলে সরাসরি Ranged GET-এ চলে যাবে
+    response = null;
+  }
+
+  if (!response || ![200, 206].includes(response.statusCode) || !headHasMetadata) {
+    if (response) response.resume();
     response = await request(url, { headers: { ...headers, Range: 'bytes=0-0' }, signal });
     if (response.statusCode < 200 || response.statusCode >= 300) {
       response.destroy();
