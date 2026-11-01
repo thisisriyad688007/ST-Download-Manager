@@ -5,10 +5,13 @@ async function checkForUpdates(win) {
   const dialog = electron.dialog;
   const shell = electron.shell;
   const BrowserWindow = electron.BrowserWindow;
+  const path = require("path");
+  const fs = require("fs");
+  const os = require("os");
+  const { spawn } = require("child_process");
 
   const targetWin = win || (BrowserWindow ? BrowserWindow.getFocusedWindow() : null);
 
-  // ডায়নামিকভাবে বর্তমান ইনস্টল থাকা ভার্সন সংগ্রহ
   let currentVersion = "";
   try {
     currentVersion = app ? app.getVersion() : "";
@@ -33,7 +36,6 @@ async function checkForUpdates(win) {
     const remoteTag = (data.tag_name || data.name || "").trim();
     const cleanRemote = remoteTag.replace(/^v/i, "").trim();
 
-    // ভার্সন তুলনা (অটোমেটিক)
     if (cleanRemote && cleanRemote !== cleanCurrent) {
       const choice = await dialog.showMessageBox(targetWin, {
         type: "info",
@@ -41,13 +43,62 @@ async function checkForUpdates(win) {
         message: `A new version (v${cleanRemote}) is available!`,
         detail: `Current version: v${cleanCurrent}
 
-Do you want to visit the download page to get the latest release?`,
-        buttons: ["Download Update", "Later"],
+Would you like to automatically download and install this update now?`,
+        buttons: ["Download & Install Update", "Later"],
         defaultId: 0,
         cancelId: 1
       });
-      if (choice.response === 0 && data.html_url) {
-        shell.openExternal(data.html_url);
+
+      if (choice.response === 0) {
+        // ১. Assets থেকে .exe ফাইল খুঁজে বের করা
+        const assets = data.assets || [];
+        const exeAsset = assets.find(a => a.name && a.name.toLowerCase().endsWith(".exe"));
+
+        if (!exeAsset || !exeAsset.browser_download_url) {
+          // কোনো exe অ্যাসেট না থাকলে ওয়েব পেজ ফলব্যাক
+          if (data.html_url) shell.openExternal(data.html_url);
+          return;
+        }
+
+        // ২. ব্যবহারকারীকে ডাউনলোড শুরুর নিশ্চিত বার্তা দেওয়া
+        dialog.showMessageBox(targetWin, {
+          type: "info",
+          title: "Downloading Update...",
+          message: `Downloading ST Download Manager v${cleanRemote}`,
+          detail: "The update is downloading in the background. The installer will automatically launch when ready. Please wait a moment."
+        });
+
+        // ৩. টেম্প ফোল্ডারে ডাউনলোড করা
+        const tempFilePath = path.join(os.tmpdir(), exeAsset.name);
+        const fileStream = fs.createWriteStream(tempFilePath);
+
+        const dlRes = await fetch(exeAsset.browser_download_url);
+        if (!dlRes.ok) throw new Error("Failed to download update installer: HTTP " + dlRes.status);
+
+        const reader = dlRes.body.getReader();
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          fileStream.write(Buffer.from(value));
+        }
+        fileStream.end();
+
+        await new Promise(resolve => fileStream.on("finish", resolve));
+
+        // ৪. স্বয়ংক্রিয়ভাবে ইনস্টলার চালু করা এবং অ্যাপ বন্ধ করা
+        const confirmInstall = await dialog.showMessageBox(targetWin, {
+          type: "info",
+          title: "Update Ready",
+          message: "Update downloaded successfully!",
+          detail: "Click \"Restart & Install\" to finish updating.",
+          buttons: ["Restart & Install", "Cancel"],
+          defaultId: 0
+        });
+
+        if (confirmInstall.response === 0) {
+          spawn(tempFilePath, [], { detached: true, stdio: "ignore" }).unref();
+          app.quit();
+        }
       }
     } else {
       await dialog.showMessageBox(targetWin, {
@@ -61,7 +112,7 @@ Do you want to visit the download page to get the latest release?`,
     await dialog.showMessageBox(targetWin, {
       type: "warning",
       title: "Update Check Failed",
-      message: "Unable to check for updates.",
+      message: "Unable to check or download updates.",
       detail: err.message || "Please check your internet connection."
     });
   }
@@ -256,19 +307,18 @@ ipcMain.handle(`downloader:${name}`, (event, data) => {
         { label: 'File', submenu: [ { label: 'Download properties…', click: command('details') }, { label: 'Remove selected', accelerator: 'Delete', click: command('remove') }, { label: 'Remove completed downloads', click: command('removeCompleted') } ] },
         { label: 'Downloads', submenu: [ { label: 'Pause all', click: command('pauseAll') }, { label: 'Stop all', click: command('pauseAll') }, { type: 'separator' }, { label: 'Delete all completed', click: command('removeCompleted') }, { type: 'separator' }, { label: 'Find', accelerator: 'CmdOrCtrl+F', click: command('find') }, { type: 'separator' }, { label: 'Scheduler…', click: command('scheduler') }, { label: 'Start queue', click: command('resumeAll') }, { label: 'Stop queue', click: command('pauseAll') }, { label: 'Speed limiter…', click: command('settings') }, { type: 'separator' }, { label: 'Options…', click: command('settings') } ] },
         { label: 'View', submenu: [ { label: 'All downloads', click: command('all') }, { role: 'togglefullscreen' }, { type: 'separator' }, { role: 'zoomIn' }, { role: 'zoomOut' }, { role: 'resetZoom' } ] },
-        { label: 'Help', submenu: [ { label: 'Check for updates…', click: (menuItem, browserWindow) => checkForUpdates(browserWindow) }, { type: 'separator' }, { label: 'Browser integration…', click: command('integration') }, { label: 'About ST Download Manager', click: () => dialog.showMessageBox(window, { title: 'About ST Download Manager', message: 'ST Download Manager v" + app.getVersion() + "', detail: 'Windows download manager with browser integration. Original implementation inspired by IDM. Full IDM feature parity is in development.' }) } ] }
-      ]));
-      engine.on('change', () => {
-        const data=snapshot();
-        if (!window.isDestroyed()) window.webContents.send('downloader:change',data);
-        for(const [id,progress] of progressWindows){
-          const d=data.downloads.find(d=>d.id===id);
-          if(closeCancelledProgress(progress,d))continue;
-          progress.setTitle(d.needsReview?'Download File Info':d.status==='complete'?'Download complete':`${d.total?Math.floor(d.downloaded/d.total*100)+'% ':''}${d.filename}`);
-          progress.webContents.send('downloader:change',data);
-        }
-      });
-      engine.on('complete', d => {
+                    { label: "Help", submenu: [
+          { label: "Check for updates…", click: (menuItem, browserWindow) => checkForUpdates(browserWindow) },
+          { type: "separator" },
+          { label: "Browser integration…", click: command("integration") },
+          { label: "About ST Download Manager", click: () => dialog.showMessageBox(window, {
+            type: "info",
+            title: "About ST Download Manager",
+            message: "ST Download Manager v0.1.4",
+            detail: "Developed by: Swap Tech\nAddress: Dr Nuruzzaman Plaza, Kanagoli, Santhia Bazar, Pabna\n\nFast, smart and reliable multi-threaded download manager with browser integration."
+          }) }
+        ] }
+      ]));      engine.on('complete', d => {
         const progress=progressWindows.get(d.id);
         if(progress&&!progress.isDestroyed()){if(engine.settings.hideCompletionDialog)progress.close();else{progress.setMinimumSize(470,270);progress.setSize(480,280);progress.setTitle('Download complete');}}
         if (engine.settings.notifyOnComplete && Notification.isSupported()) new Notification({ title: 'Download complete', body: d.filename }).show();
