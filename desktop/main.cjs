@@ -311,12 +311,7 @@ ipcMain.handle(`downloader:${name}`, (event, data) => {
           { label: "Check for updates…", click: (menuItem, browserWindow) => checkForUpdates(browserWindow) },
           { type: "separator" },
           { label: "Browser integration…", click: command("integration") },
-          { label: "About ST Download Manager", click: () => dialog.showMessageBox(window, {
-            type: "info",
-            title: "About ST Download Manager",
-            message: "ST Download Manager v0.1.4",
-            detail: "Developed by: Swap Tech\nAddress: Dr Nuruzzaman Plaza, Kanagoli, Santhia Bazar, Pabna\n\nFast, smart and reliable multi-threaded download manager with browser integration."
-          }) }
+          { label: "About ST Download Manager", click: command("about") }
         ] }
       ]));      const broadcastSnapshot = () => {
         const snap = snapshot();

@@ -120,4 +120,27 @@
 </div><progress id="detail-progress" max="100" value="0" aria-label="Download progress"></progress><div class="transfer-buttons"><button class="button" id="toggle-details">&lt;&lt; Hide details</button><span class="spacer"></span><button class="button" id="detail-resume">Resume</button><button class="button" id="detail-stop">Pause</button><button class="button" id="detail-cancel">Cancel</button></div><div id="connection-details"><p class="connection-caption">Start positions and download progress by connections</p><div id="segment-map" class="segment-map"></div><div class="connections-scroll"><table class="connections-table"><thead><tr><th>N.</th><th>Downloaded</th><th>Info</th></tr></thead><tbody id="segment-bars"></tbody></table></div><p id="segment-note" class="field-help"></p></div><p id="detail-error" class="form-error" hidden></p></div><div class="dialog-footer"><button class="button" data-close>Close</button></div></dialog>
 
 <dialog id="integration-dialog" aria-labelledby="integration-title"><div class="dialog-title"><strong id="integration-title">Browser integration</strong><button class="close-button" data-close aria-label="Close">×</button></div><div class="dialog-body"><p>Install the extension to show download buttons over supported web videos and send links to ST Download Manager.</p><ol class="setup-steps"><li>Open <code>chrome://extensions</code> or <code>edge://extensions</code>.</li><li>Enable <strong>Developer mode</strong>, choose <strong>Load unpacked</strong>, and select this folder:<input id="extension-path" readonly aria-label="Extension folder"></li><li>Copy the extension ID shown by your browser. In PowerShell, run this command after replacing <strong>YOUR_EXTENSION_ID</strong>. For Edge, change <strong>Chrome</strong> to <strong>Edge</strong>.<textarea id="registration-command" rows="3" readonly aria-label="Browser registration command"></textarea></li></ol><label for="integration-port">Local connection:</label><input id="integration-port" readonly><p class="field-help">Keep this app running. Direct video files are supported; HLS, DASH, and protected streams are not available in this build.</p></div><div class="dialog-footer"><button class="button" data-close>Close</button></div></dialog>
+
+<dialog id="about-dialog" aria-labelledby="about-title">
+  <div class="dialog-title">
+    <strong id="about-title">About ST Download Manager</strong>
+    <button type="button" class="close-button" data-close aria-label="Close">×</button>
+  </div>
+  <div class="dialog-body" style="padding: 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px;">
+    <div style="width: 56px; height: 56px; border-radius: 14px; background: linear-gradient(135deg, #0284c7, #38bdf8); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    </div>
+    <div style="font-size: 16px; font-weight: 700; color: #0f172a;">ST Download Manager <span style="font-size: 12px; font-weight: 600; color: #0284c7; background: #e0f2fe; padding: 2px 8px; border-radius: 12px;">v0.1.4</span></div>
+    <p style="font-size: 12.5px; color: #475569; margin: 0; line-height: 1.5;">Fast, smart, and ultra-reliable multi-threaded download manager with seamless browser integration.</p>
+    <div style="width: 100%; height: 1px; background: #e2e8f0; margin: 4px 0;"></div>
+    <div style="font-size: 11.5px; color: #64748b; line-height: 1.6;">
+      <div>Developed with ❤️ by <strong style="color: #0f172a;">Swap Tech</strong></div>
+      <div>Dr Nuruzzaman Plaza, Kanagoli, Santhia Bazar, Pabna</div>
+    </div>
+  </div>
+  <div class="dialog-footer" style="justify-content: center;">
+    <button type="button" class="button primary" data-close style="min-width: 100px;">OK</button>
+  </div>
+</dialog>
+
 </body></html>

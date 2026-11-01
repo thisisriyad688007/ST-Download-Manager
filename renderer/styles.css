@@ -1025,3 +1025,71 @@ body.progress-window .dialog-body {
   color: #ffffff !important;
   border-color: #0369a1 !important;
 }
+
+
+
+/* ==========================================================================
+   PROGRESS WINDOW THREADS & SPACING FIX (ZERO WASTED GAP)
+   ========================================================================== */
+
+/* অতিরিক্ত স্পেস বাদ দিয়ে কনটেন্ট ফুল স্ক্রিনে সুন্দরভাবে ফিট করানো */
+body.progress-window .dialog-body {
+  padding: 10px 14px 6px !important;
+  gap: 6px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: calc(100vh - 48px) !important;
+}
+
+/* ট্রান্সফার ডিটেইলস কার্ড আরও পরিচ্ছন্ন ও কমপ্যাক্ট */
+body.progress-window .details-content {
+  margin-bottom: 4px !important;
+  padding: 8px 12px !important;
+  row-gap: 3px !important;
+  flex-shrink: 0 !important;
+}
+
+body.progress-window .transfer-buttons {
+  margin: 4px 0 !important;
+  flex-shrink: 0 !important;
+}
+
+body.progress-window #connection-details {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+  margin-top: 2px !important;
+}
+
+/* কানেকশন থ্রেড টেবিল পুরো খালি জায়গা দখল করবে */
+body.progress-window .connections-scroll {
+  flex: 1 !important;
+  max-height: none !important;
+  height: 100% !important;
+  min-height: 140px !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  background: #ffffff !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.03) !important;
+}
+
+body.progress-window .connections-table {
+  width: 100% !important;
+}
+
+body.progress-window .connections-table th {
+  position: sticky !important;
+  top: 0 !important;
+  background: #f1f5f9 !important;
+  z-index: 1 !important;
+  border-bottom: 1px solid #cbd5e1 !important;
+}
+
+/* নিচের ক্লোজ বাটন ফুটার মার্জিন কমানো */
+body.progress-window .dialog-footer {
+  padding: 6px 14px 10px !important;
+  background: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  flex-shrink: 0 !important;
+}
