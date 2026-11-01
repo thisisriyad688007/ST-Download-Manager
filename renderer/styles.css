@@ -1854,3 +1854,96 @@ body.review-window #add-dialog > .dialog-title {
   width: min(600px, calc(100vw - 32px)) !important;
   max-height: 85vh !important;
 }
+
+
+
+/* ==========================================================================
+   REVIEW WINDOW & PLAYLIST SCROLL LOCKDOWN
+   ========================================================================== */
+
+/* ব্রাউজার ডাউনলোড রিভিউ উইন্ডো - একদম ফিট সাইজ ও স্পষ্ট বাটন */
+body.review-window {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+  background: #f8fafc !important;
+}
+
+body.review-window #add-dialog {
+  display: flex !important;
+  flex-direction: column !important;
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: #ffffff !important;
+}
+
+body.review-window #add-dialog form#add-form {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+}
+
+body.review-window #add-dialog .dialog-body {
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  padding: 16px 20px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+body.review-window #add-dialog .dialog-footer {
+  flex-shrink: 0 !important;
+  height: 56px !important;
+  min-height: 56px !important;
+  padding: 0 20px !important;
+  background: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  z-index: 100 !important;
+}
+
+/* প্লেলিস্ট সিলেক্টর ডায়ালগের মাপ ও পারফেক্ট স্ক্রলিং */
+#st-playlist-dlg {
+  width: min(600px, 94vw) !important;
+  max-height: 88vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  margin: auto !important;
+  inset: 0 !important;
+  position: fixed !important;
+  border-radius: 12px !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.25) !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  background: #ffffff !important;
+}
+
+#st-playlist-dlg:not([open]) {
+  display: none !important;
+}
+
+#st-playlist-dlg[open] {
+  display: flex !important;
+}
+
+#st-pl-list {
+  max-height: 260px !important;
+  overflow-y: auto !important;
+}

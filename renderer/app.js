@@ -1,4 +1,16 @@
 
+document.addEventListener('click', (e) => {
+  const closeBtn = e.target.closest('[data-close], #st-pl-close, #st-pl-cancel');
+  if (closeBtn) {
+    const dlg = closeBtn.closest('dialog');
+    if (dlg) {
+      dlg.close();
+      dlg.removeAttribute('open');
+    }
+  }
+});
+
+
 function createContextMenu() {
   let menu = document.getElementById("idm-context-menu");
   if (!menu) {
@@ -343,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <button id="st-pl-toggle-all" type="button" class="small-button" style="height:26px;font-size:11.5px;">Select / Deselect All</button>
         <span style="color:#64748b;font-size:11.5px;">Check videos to download</span>
       </div>
-      <div id="st-pl-list" style="max-height:220px;min-height:140px;overflow-y:auto;background:#ffffff;border:1px solid #cbd5e1;border-radius:6px;padding:8px;font-size:12px;">
+      <div id="st-pl-list" style="height:260px;max-height:260px;overflow-y:auto;background:#ffffff;border:1px solid #cbd5e1;border-radius:6px;padding:8px;font-size:12px;margin-bottom:10px;">
         <div style="padding:20px;text-align:center;color:#64748b;">Scanning playlist items...</div>
       </div>
       <div style="background:#f8fafc;padding:10px 14px;border-radius:8px;border:1px solid #e2e8f0;">
