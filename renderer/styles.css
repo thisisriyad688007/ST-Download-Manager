@@ -1191,3 +1191,102 @@ body.progress-window .dialog-footer {
 body.progress-window .dialog-footer .button {
   height: 30px !important;
 }
+
+
+
+/* ==========================================================================
+   PERFECT COMPACT PROGRESS WINDOW (ZERO FOOTER, ZERO BLANK GAP)
+   ========================================================================== */
+
+/* প্রগ্রেস উইন্ডোতে বাড়তি ডায়ালগ ফুটার ("Close" সাদা বক্স) চিরতরে বন্ধ */
+body.progress-window .dialog-footer {
+  display: none !important;
+}
+
+body.progress-window {
+  background: #f8fafc !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+}
+
+body.progress-window #details-dialog {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: #f8fafc !important;
+  overflow: hidden !important;
+}
+
+body.progress-window .dialog-body {
+  padding: 10px 14px !important;
+  margin: 0 !important;
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  overflow-y: auto !important;
+  height: 100vh !important;
+  box-sizing: border-box !important;
+}
+
+body.progress-window .dialog-tabs {
+  margin-bottom: 2px !important;
+  height: 28px !important;
+  flex-shrink: 0 !important;
+}
+
+body.progress-window .transfer-source {
+  margin: 0 0 6px 0 !important;
+  padding: 5px 8px !important;
+  font-size: 11px !important;
+  flex-shrink: 0 !important;
+}
+
+body.progress-window .details-content {
+  padding: 6px 12px !important;
+  margin: 0 0 6px 0 !important;
+  row-gap: 2px !important;
+  column-gap: 10px !important;
+  flex-shrink: 0 !important;
+}
+
+body.progress-window .transfer-buttons {
+  margin: 6px 0 !important;
+  display: flex !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+body.progress-window .transfer-buttons .button {
+  flex: 1 !important;
+  height: 30px !important;
+  font-size: 11.5px !important;
+}
+
+body.progress-window #connection-details {
+  flex: 1 !important;
+  min-height: 120px !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+body.progress-window .connections-scroll {
+  flex: 1 !important;
+  height: 100% !important;
+  min-height: 90px !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  border-radius: 6px !important;
+}
