@@ -212,45 +212,81 @@ if (process.argv.includes('--native-host')) {
           showProgress(progress);
         },
         checkForUpdates: async () => {
-        try {
-          const https = require('https');
-          const currentVersion = 'v0.1.4';
-          
-          const fetchUrl = (url) => new Promise((resolve, reject) => {
-            const req = https.get(url, {
-              headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ST-Download-Manager',
-                'Accept': 'application/vnd.github.v3+json'
-              }
-            }, res => {
-              if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-                return resolve(fetchUrl(res.headers.location));
-              }
-              let body = '';
-              res.on('data', c => body += c);
-              res.on('end', () => {
-                try {
-                  resolve(JSON.parse(body));
-                } catch (e) {
-                  resolve({ tag_name: currentVersion });
-                }
-              });
-            });
-            req.on('error', () => resolve({ tag_name: currentVersion }));
-            req.setTimeout(6000, () => { req.destroy(); resolve({ tag_name: currentVersion }); });
+        const https = require('https');
+        const pkg = require('./package.json');
+        const currentVersion = 'v' + (pkg.version || '0.1.4').replace(/^v/, '');
+
+        return new Promise((resolve) => {
+          const req = https.get('https://api.github.com/repos/thisisriyad688007/ST-Download-Manager/releases/latest', {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ST-Download-Manager',
+              'Accept': 'application/vnd.github.v3+json'
+            }
+          }, (res) => {
+            if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+              return https.get(res.headers.location, { headers: { 'User-Agent': 'ST-Download-Manager' } }, r => {
+                let data = '';
+                r.on('data', chunk => data += chunk);
+                r.on('end', () => parseRelease(data));
+              }).on('error', () => resolve({ hasUpdate: false, current: currentVersion }));
+            }
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => parseRelease(data));
           });
 
-          const releaseData = await fetchUrl('https://api.github.com/repos/thisisriyad688007/ST-Download-Manager/releases/latest');
-          const latestTag = releaseData.tag_name || currentVersion;
-          return {
-            hasUpdate: latestTag !== currentVersion && latestTag.startsWith('v'),
-            latest: latestTag,
-            current: currentVersion,
-            url: releaseData.html_url || 'https://github.com/thisisriyad688007/ST-Download-Manager/releases'
-          };
-        } catch (e) {
-          return { hasUpdate: false, current: 'v0.1.4' };
-        }
+          req.on('error', () => resolve({ hasUpdate: false, current: currentVersion }));
+          req.setTimeout(8000, () => { req.destroy(); resolve({ hasUpdate: false, current: currentVersion }); });
+
+          function parseRelease(jsonStr) {
+            try {
+              const release = JSON.parse(jsonStr);
+              const latestTag = release.tag_name || currentVersion;
+              // Clean versions for comparison (e.g., 0.1.5 > 0.1.4)
+              const vLatest = latestTag.replace(/^v/, '');
+              const vCurrent = currentVersion.replace(/^v/, '');
+              const hasUpdate = vLatest !== vCurrent && release.assets && release.assets.length > 0;
+              
+              let exeAsset = release.assets?.find(a => a.name.endsWith('.exe')) || release.assets?.[0];
+              resolve({
+                hasUpdate: Boolean(hasUpdate),
+                latest: latestTag,
+                current: currentVersion,
+                downloadUrl: exeAsset ? exeAsset.browser_download_url : release.html_url,
+                fileName: exeAsset ? exeAsset.name : 'ST-Download-Manager-Update.exe'
+              });
+            } catch (e) {
+              resolve({ hasUpdate: false, current: currentVersion });
+            }
+          }
+        });
+      },
+      installUpdateNow: async ({ downloadUrl, fileName }) => {
+        const { app, shell } = require('electron');
+        const https = require('https');
+        const fs = require('fs');
+        const path = require('path');
+        const tempPath = path.join(app.getPath('temp'), fileName || 'ST-Download-Manager-Installer.exe');
+        
+        return new Promise((resolve, reject) => {
+          function downloadFile(url) {
+            https.get(url, { headers: { 'User-Agent': 'ST-Download-Manager' } }, res => {
+              if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+                return downloadFile(res.headers.location);
+              }
+              const fileStream = fs.createWriteStream(tempPath);
+              res.pipe(fileStream);
+              fileStream.on('finish', () => {
+                fileStream.close(() => {
+                  shell.openPath(tempPath);
+                  setTimeout(() => app.quit(), 1000);
+                  resolve(true);
+                });
+              });
+            }).on('error', reject);
+          }
+          downloadFile(downloadUrl);
+        });
       },
         add: data => engine.add(data),
         review: data => engine.reviewDownload(data),

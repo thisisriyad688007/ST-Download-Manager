@@ -818,3 +818,16 @@ body.progress-window .connections-scroll {
 #segment-map {
   display: none !important;
 }
+
+
+/* IDM Style Single-Line Truncated URL */
+.transfer-source {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  display: block !important;
+  max-width: 100% !important;
+  height: 28px !important;
+  line-height: 18px !important;
+  box-sizing: border-box !important;
+}
