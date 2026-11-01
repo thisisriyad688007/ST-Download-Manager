@@ -1109,7 +1109,7 @@ body.progress-window {
   flex-direction: column !important;
 }
 
-body.progress-window #details-dialog {
+body.progress-window #details-dialog[open] {
   display: flex !important;
   flex-direction: column !important;
   height: 100vh !important;
@@ -1211,7 +1211,7 @@ body.progress-window {
   overflow: hidden !important;
 }
 
-body.progress-window #details-dialog {
+body.progress-window #details-dialog[open] {
   display: flex !important;
   flex-direction: column !important;
   width: 100vw !important;
@@ -1298,7 +1298,7 @@ body.progress-window .connections-scroll {
    ========================================================================== */
 
 /* সাধারণ ডায়ালগগুলো স্ক্রিনে পারফেক্ট সাইজ ও অটো স্ক্রলে থাকবে */
-dialog {
+dialog[open] {
   margin: auto !important;
   inset: 0 !important;
   width: min(580px, calc(100vw - 32px)) !important;
@@ -1463,7 +1463,7 @@ body.progress-window .connections-scroll {
    ========================================================================== */
 
 /* ১. Download File Info ডায়ালগে বাটন দৃশ্যমান রাখা ও স্ক্রলিং */
-#add-dialog {
+#add-dialog[open] {
   display: flex !important;
   flex-direction: column !important;
   max-height: min(580px, calc(100vh - 30px)) !important;
@@ -1559,4 +1559,80 @@ body.progress-window .connections-scroll {
 /* ৩. প্লেলিস্ট মোডাল কন্টেইনার */
 #playlist-modal {
   display: none;
+}
+
+
+
+/* ==========================================================================
+   STRICT DIALOG VISIBILITY FIX (ONLY SHOW OPEN DIALOGS)
+   ========================================================================== */
+
+/* বন্ধ থাকা ডায়ালগ কখনো স্ক্রিনে আসবে না */
+dialog:not([open]) {
+  display: none !important;
+}
+
+/* শুধুমাত্র ওপেন ডায়ালগ সেন্টারে ফ্লুয়েন্ট মোডালে আসবে */
+dialog[open] {
+  display: flex !important;
+  flex-direction: column !important;
+  margin: auto !important;
+  inset: 0 !important;
+  position: fixed !important;
+  z-index: 1000 !important;
+  width: min(560px, calc(100vw - 40px)) !important;
+  max-height: calc(100vh - 50px) !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.22) !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+dialog[open]::backdrop {
+  background: rgba(15, 23, 42, 0.45) !important;
+  backdrop-filter: blur(3px) !important;
+}
+
+/* ডায়ালগ ফর্ম বডি ও ফুটার */
+dialog[open] form {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+dialog[open] .dialog-body {
+  padding: 16px 20px !important;
+  overflow-y: auto !important;
+  flex: 1 1 auto !important;
+}
+
+dialog[open] .dialog-footer {
+  height: 52px !important;
+  background: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  padding: 0 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+/* প্রগ্রেস উইন্ডোর ভেতরে মেইন অ্যাপের কোনো ক্লোজ ফুটার থাকবে না */
+body.progress-window .dialog-footer {
+  display: none !important;
+}
+
+body.progress-window #details-dialog {
+  display: flex !important;
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
 }
