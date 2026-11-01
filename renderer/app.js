@@ -673,7 +673,15 @@ suppressCompletion.addEventListener('change',async()=>{try{await call('settings'
 $('#details-dialog').append(completedPanel);
 const renderTransferDetails=renderDetails;
 renderDetails=function(){
-  renderTransferDetails();const d=detailDownload();if(!d||statusOf(d)!=='completed')return;
+  renderTransferDetails();
+  const d = detailDownload();
+  const dlg = $('#details-dialog');
+  if (d && statusOf(d) === 'completed') {
+    dlg.classList.add('is-complete');
+  } else {
+    dlg.classList.remove('is-complete');
+  }
+  if (!d || statusOf(d) !== 'completed') return;
   completedSummary.replaceChildren(element('span','completed-icon','✓'),element('div','',`Download complete\nDownloaded ${bytes(d.total||d.downloaded)} (${Math.round(d.total||d.downloaded||0)} Bytes)`));
   completedFields.url.value=d.url||'';completedFields.path.value=d.path||'';
   suppressCompletion.checked=state.settings.hideCompletionDialog===true;

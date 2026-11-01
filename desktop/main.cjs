@@ -336,7 +336,14 @@ ipcMain.handle(`downloader:${name}`, (event, data) => {
 
       engine.on('complete', d => {
         const progress=progressWindows.get(d.id);
-        if(progress&&!progress.isDestroyed()){if(engine.settings.hideCompletionDialog)progress.close();else{progress.setMinimumSize(470,270);progress.setSize(480,280);progress.setTitle('Download complete');}}
+        if(progress&&!progress.isDestroyed()){if (engine.settings && engine.settings.hideCompletionDialog === true) {
+          progress.close();
+        } else {
+          progress.setMinimumSize(460, 260);
+          progress.setSize(480, 270);
+          progress.center();
+          progress.setTitle('Download complete');
+        }}
         if (engine.settings.notifyOnComplete && Notification.isSupported()) new Notification({ title: 'Download complete', body: d.filename }).show();
         if (engine.settings.revealOnComplete && d.path) shell.showItemInFolder(d.path);
       });
