@@ -730,6 +730,12 @@ async function bulkAction(action) { const downloads = state.downloads.filter(act
 async function removeCompleted() { const downloads = state.downloads.filter(d => statusOf(d) === 'completed'); if (!downloads.length || !window.confirm(`Delete ${downloads.length} completed download(s) from the list?\n\nThe downloaded files will remain on your PC.`)) return; const results = await Promise.allSettled(downloads.map(d => call('action',{id:d.id,action:'remove'}))); const failures = results.filter(r => r.status === 'rejected'); if (failures.length) notify(messageOf(failures[0].reason),true); try { await refresh(); } catch (error) { notify(messageOf(error),true); } }
 function showDialog(id) { const dialog = $(id); if (!dialog.open) dialog.showModal(); }
 function openAdd(text = '',scheduled = '') { pendingReviewId = null; $('#add-error').hidden = true; $('#download-urls').value = text; $('#download-urls').readOnly = false; $('#download-filename').value = ''; $('#download-description').value = ''; $('#download-category').value = ''; rememberInput.checked = false; rememberInput.disabled = true; $('#download-schedule').value = scheduled; $('#add-directory').value = state.settings.defaultDirectory || ''; showDialog('#add-dialog'); $('#download-urls').focus(); }
+$('#add-dialog').addEventListener('close', () => {
+    if (reviewId) {
+      dismissedReviews.add(reviewId);
+      reviewId = null;
+    }
+  });
 function openReview(id) { if(!progressMode){call('openProgress',{id}).catch(e=>notify(messageOf(e),true));return;} document.body.classList.add('review-window'); document.title='Download File Info'; const d = state.downloads.find(item => item.id === id && item.needsReview); if (!d || dismissedReviews.has(id)) return; openAdd(d.url || ''); pendingReviewId = id; $('#download-urls').readOnly = true; $('#download-filename').value = d.filename || ''; $('#download-description').value = d.description || ''; $('#download-category').value = d.category || ''; rememberInput.disabled = !$('#download-category').value; $('#add-directory').value = d.directory || state.settings.defaultDirectory || ''; }
 async function dismissReview() { if (!pendingReviewId) return; const id = pendingReviewId; dismissedReviews.add(id); pendingReviewId = null; try { await call('action',{id,action:'remove'}); await refresh(); if(progressMode)await call('closeProgress'); } catch (error) { notify(messageOf(error),true); } }
 function showDetails(id) { if (state.downloads.find(d => d.id === id)?.needsReview) { openReview(id); return; } if(!progressMode){call('openProgress',{id}).catch(e=>notify(messageOf(e),true));return;} document.body.classList.remove('review-window'); detailId = id; $('#detail-speed-limit').value = state.settings.speedLimitKbps || 0; $('#notify-complete').checked = state.settings.notifyOnComplete !== false; $('#reveal-complete').checked = state.settings.revealOnComplete === true; $('#completion-result').textContent = ''; setDetailTab('status'); renderDetails(); showDialog('#details-dialog'); }
@@ -845,7 +851,33 @@ $('#add-form').addEventListener('submit',async event => {
   finally { $('#add-submit').disabled = false; $('#add-later').disabled = false; }
 });
 $('#choose-directory').addEventListener('click',async () => { try { const path = await call('chooseDirectory'); if (typeof path === 'string' && path) $('#default-directory').value = path; } catch (error) { $('#settings-error').textContent = messageOf(error); $('#settings-error').hidden = false; } }); $('#settings-form').addEventListener('submit',async event => { event.preventDefault(); const button = $('button[type=submit]',event.target); $('#settings-error').hidden = true; button.disabled = true; try { await call('settings',{defaultDirectory:$('#default-directory').value.trim(),maxConcurrent:Number($('#max-concurrent').value),connections:Number($('#connections').value),speedLimitKbps:Number($('#speed-limit').value)}); await refresh(); $('#settings-dialog').close(); } catch (error) { $('#settings-error').textContent = messageOf(error); $('#settings-error').hidden = false; } finally { button.disabled = false; } });
-async function start() { try { await refresh(); if (typeof api.subscribe === 'function') unsubscribe = api.subscribe(snapshot => { if (snapshot?.downloads) acceptSnapshot(snapshot); else refresh().catch(error => notify(messageOf(error),true)); }); if (typeof api.onCommand === 'function') unsubscribeCommands = api.onCommand(async payload => { const command = typeof payload === 'string' ? payload : payload?.command; if (command === 'dismissBrowserIntegration') { if ($('#integration-dialog').open) $('#integration-dialog').close(); return; } if (command === 'checkUpdates') { showDialog('#update-dialog'); return; }
+async function start() { try { await refresh(); if (typeof api.subscribe === 'function') unsubscribe = api.subscribe(snapshot => { if (snapshot?.downloads) acceptSnapshot(snapshot); else refresh().catch(error => notify(messageOf(error),true)); }); if (typeof api.onCommand === 'function') unsubscribeCommands = api.onCommand(async payload => { const command = typeof payload === 'string' ? payload : payload?.command; if (command === 'dismissBrowserIntegration') { if ($('#integration-dialog').open) $('#integration-dialog').close(); return; } if (command === 'checkUpdates') {
+        const title = $('#update-status-title');
+        const desc = $('#update-status-desc');
+        title.textContent = 'Checking for updates…';
+        desc.textContent = 'Connecting to GitHub releases server…';
+        showDialog('#update-dialog');
+        try {
+          const res = await call('checkForUpdates');
+          if (res && res.hasUpdate) {
+            title.textContent = 'New version available: ' + res.latest;
+            desc.innerHTML = `Current version: ${res.current}<br><a href="#" id="open-release-link" style="color:#0284c7;font-weight:600;text-decoration:underline;">Click here to download update</a>`;
+            setTimeout(() => {
+              document.getElementById('open-release-link')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                call('openFile', res.url);
+              });
+            }, 100);
+          } else {
+            title.textContent = 'ST Download Manager is up to date!';
+            desc.textContent = 'You are running the latest version (' + (res?.current || 'v0.1.4') + ').';
+          }
+        } catch (e) {
+          title.textContent = 'Check failed';
+          desc.textContent = 'Could not reach update server. Please check internet connection.';
+        }
+        return;
+      }
       if (command === 'about') { showDialog('#about-dialog'); return; }
       if (command === 'openAddUrl') {
         openAdd(payload.url || "");

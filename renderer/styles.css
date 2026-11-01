@@ -1636,3 +1636,45 @@ body.progress-window #details-dialog {
   border-radius: 0 !important;
   box-shadow: none !important;
 }
+
+
+
+/* --- FIX: Download File Info Sticky Footer & Form Bounds --- */
+#add-dialog {
+  width: min(540px, 94vw) !important;
+  max-height: 85vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-sizing: border-box !important;
+}
+
+#add-dialog form#add-form {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  max-height: 85vh !important;
+  overflow: hidden !important;
+}
+
+#add-dialog .dialog-body {
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  padding: 16px 18px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+#add-dialog .dialog-footer {
+  flex-shrink: 0 !important;
+  height: 54px !important;
+  min-height: 54px !important;
+  padding: 0 18px !important;
+  background: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  z-index: 10 !important;
+}

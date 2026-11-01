@@ -211,6 +211,34 @@ if (process.argv.includes('--native-host')) {
           await progress.loadFile(path.join(root,'renderer','index.html'),{query:{progress:id}});
           showProgress(progress);
         },
+        checkForUpdates: async () => {
+        try {
+          const https = require('https');
+          const currentVersion = 'v0.1.4';
+          const releaseData = await new Promise((resolve, reject) => {
+            const req = https.get('https://api.github.com/repos/thisisriyad688007/ST-Download-Manager/releases/latest', {
+              headers: { 'User-Agent': 'ST-Download-Manager' }
+            }, res => {
+              let body = '';
+              res.on('data', c => body += c);
+              res.on('end', () => {
+                try { resolve(JSON.parse(body)); } catch (e) { reject(e); }
+              });
+            });
+            req.on('error', reject);
+            req.setTimeout(5000, () => { req.destroy(); reject(new Error('Timeout')); });
+          });
+          const latestTag = releaseData.tag_name || currentVersion;
+          return {
+            hasUpdate: latestTag !== currentVersion,
+            latest: latestTag,
+            current: currentVersion,
+            url: releaseData.html_url || 'https://github.com/thisisriyad688007/ST-Download-Manager/releases'
+          };
+        } catch (e) {
+          return { hasUpdate: false, current: 'v0.1.4' };
+        }
+      },
         add: data => engine.add(data),
         review: data => engine.reviewDownload(data),
         action: async ({ id, action }) => {
