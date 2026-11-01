@@ -274,7 +274,7 @@ if (process.argv.includes('--native-host')) {
             const client = targetUrl.startsWith('https') ? https : http;
             client.get(targetUrl, {
               headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ST-Download-Manager' }
-            }, res => {
+            }, (res) => {
               if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
                 return fetchDownload(res.headers.location);
               }
@@ -295,25 +295,8 @@ if (process.argv.includes('--native-host')) {
           }
           fetchDownload(downloadUrl);
         });
-      }, res => {
-              if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-                return downloadFile(res.headers.location);
-              }
-              const fileStream = fs.createWriteStream(tempPath);
-              res.pipe(fileStream);
-              fileStream.on('finish', () => {
-                fileStream.close(() => {
-                  shell.openPath(tempPath);
-                  setTimeout(() => app.quit(), 1000);
-                  resolve(true);
-                });
-              });
-            }).on('error', reject);
-          }
-          downloadFile(downloadUrl);
-        });
       },
-        add: data => engine.add(data),
+      add: data => engine.add(data),
         review: data => engine.reviewDownload(data),
         action: async ({ id, action }) => {
           const d = engine.downloads.find(d => d.id === id);
