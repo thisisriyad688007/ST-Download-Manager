@@ -317,47 +317,48 @@ document.addEventListener('DOMContentLoaded', () => {
   const dlg = document.createElement('dialog');
   dlg.id = 'st-playlist-dlg';
   dlg.style.cssText = `
-    border: 1px solid #707070;
-    border-radius: 6px;
-    padding: 16px 20px;
-    background: #f0f0f0;
-    color: #1a1a1a;
-    width: 540px;
-    max-width: 92vw;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-    font-family: "Segoe UI", Arial, sans-serif;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 0;
+    background: #ffffff;
+    color: #0f172a;
+    width: 620px;
+    max-width: 94vw;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    font-family: inherit;
     outline: none;
     z-index: 100001;
+    overflow: hidden;
   `;
   dlg.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;border-bottom:1px solid #d0d0d0;padding-bottom:8px;">
-      <span style="font-weight:600;font-size:14px;color:#222;">Playlist Video Selector</span>
-      <span id="st-pl-count" style="font-size:11px;color:#666;"></span>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid #e2e8f0;background:#f8fafc;">
+      <span style="font-weight:600;font-size:13.5px;color:#0f172a;">Playlist Video Selector</span>
+      <span id="st-pl-count" style="font-size:11.5px;color:#64748b;font-weight:500;"></span>
     </div>
-    <div style="margin-bottom:8px;">
-      <div id="st-pl-title" style="font-size:12px;font-weight:600;color:#0b57d0;background:#fff;border:1px solid #ccc;padding:6px 10px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Loading playlist...</div>
-    </div>
-    <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px;">
+    <div style="padding:16px 18px;display:flex;flex-direction:column;gap:12px;">
       <div>
-        <button id="st-pl-toggle-all" type="button" style="padding:2px 8px;background:#e1e1e1;border:1px solid #ccc;border-radius:3px;cursor:pointer;">Select / Deselect All</button>
+        <div id="st-pl-title" style="font-size:12px;font-weight:600;color:#0284c7;background:#f0f9ff;border:1px solid #bae6fd;padding:8px 12px;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Loading playlist...</div>
       </div>
-      <span style="color:#555;">Check videos to download</span>
-    </div>
-    <div id="st-pl-list" style="max-height:200px;overflow-y:auto;background:#fff;border:1px solid #abadb3;border-radius:4px;padding:6px;margin-bottom:12px;">
-      <div style="padding:10px;text-align:center;color:#666;font-size:12px;">Scanning playlist items...</div>
-    </div>
-    <div style="margin-bottom:14px;background:#e9e9e9;padding:8px 12px;border-radius:4px;border:1px solid #ccc;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-        <label style="font-size:12px;font-weight:600;color:#333;">Available Formats (Live from video):</label>
-        <span id="st-pl-q-status" style="font-size:11px;color:#666;">Fetching formats...</span>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
+        <button id="st-pl-toggle-all" type="button" class="small-button" style="height:26px;font-size:11.5px;">Select / Deselect All</button>
+        <span style="color:#64748b;font-size:11.5px;">Check videos to download</span>
       </div>
-      <select id="st-pl-quality" style="width:100%;padding:5px 8px;background:#fff;border:1px solid #abadb3;border-radius:3px;font-size:12px;outline:none;">
-        <option>Loading original video qualities...</option>
-      </select>
+      <div id="st-pl-list" style="max-height:220px;min-height:140px;overflow-y:auto;background:#ffffff;border:1px solid #cbd5e1;border-radius:6px;padding:8px;font-size:12px;">
+        <div style="padding:20px;text-align:center;color:#64748b;">Scanning playlist items...</div>
+      </div>
+      <div style="background:#f8fafc;padding:10px 14px;border-radius:8px;border:1px solid #e2e8f0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <label style="font-size:12px;font-weight:600;color:#334155;">Available Formats (Live from video):</label>
+          <span id="st-pl-q-status" style="font-size:11px;color:#64748b;">Fetching formats...</span>
+        </div>
+        <select id="st-pl-quality" style="width:100%;height:32px;background:#ffffff;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;color:#0f172a;outline:none;padding:0 8px;">
+          <option>Loading original video qualities...</option>
+        </select>
+      </div>
     </div>
-    <div style="display:flex;justify-content:flex-end;gap:10px;">
-      <button id="st-pl-cancel" type="button" style="min-width:75px;padding:6px 14px;background:#e1e1e1;color:#222;border:1px solid #adadad;border-radius:3px;font-size:12px;cursor:pointer;">Cancel</button>
-      <button id="st-pl-download" type="button" style="min-width:130px;padding:6px 16px;background:#0067c0;color:#ffffff;border:1px solid #005fb8;border-radius:3px;font-size:12px;font-weight:600;cursor:pointer;">Download Selected</button>
+    <div style="display:flex;justify-content:flex-end;gap:8px;padding:12px 18px;background:#f8fafc;border-top:1px solid #e2e8f0;">
+      <button id="st-pl-cancel" type="button" class="button" style="min-width:80px;">Cancel</button>
+      <button id="st-pl-download" type="button" class="button primary" style="min-width:140px;">Download Selected</button>
     </div>
   `;
   document.body.appendChild(dlg);
@@ -736,7 +737,7 @@ $('#add-dialog').addEventListener('close', () => {
       reviewId = null;
     }
   });
-function openReview(id) { if(!progressMode){call('openProgress',{id}).catch(e=>notify(messageOf(e),true));return;} document.body.classList.add('review-window'); document.title='Download File Info'; const d = state.downloads.find(item => item.id === id && item.needsReview); if (!d || dismissedReviews.has(id)) return; openAdd(d.url || ''); pendingReviewId = id; $('#download-urls').readOnly = true; $('#download-filename').value = d.filename || ''; $('#download-description').value = d.description || ''; $('#download-category').value = d.category || ''; rememberInput.disabled = !$('#download-category').value; $('#add-directory').value = d.directory || state.settings.defaultDirectory || ''; }
+function openReview(id) { if(!progressMode){call('openProgress',{id}).catch(e=>notify(messageOf(e),true));return;} document.body.classList.add('review-window'); document.title='Download File Info'; const d = state.downloads.find(item => item.id === id && item.needsReview); if (!d || (typeof dismissedReviews !== 'undefined' && dismissedReviews.has(id))) return; openAdd(d.url || ''); pendingReviewId = id; $('#download-urls').readOnly = true; $('#download-filename').value = d.filename || ''; $('#download-description').value = d.description || ''; $('#download-category').value = d.category || ''; rememberInput.disabled = !$('#download-category').value; $('#add-directory').value = d.directory || state.settings.defaultDirectory || ''; }
 async function dismissReview() { if (!pendingReviewId) return; const id = pendingReviewId; dismissedReviews.add(id); pendingReviewId = null; try { await call('action',{id,action:'remove'}); await refresh(); if(progressMode)await call('closeProgress'); } catch (error) { notify(messageOf(error),true); } }
 function showDetails(id) { if (state.downloads.find(d => d.id === id)?.needsReview) { openReview(id); return; } if(!progressMode){call('openProgress',{id}).catch(e=>notify(messageOf(e),true));return;} document.body.classList.remove('review-window'); detailId = id; $('#detail-speed-limit').value = state.settings.speedLimitKbps || 0; $('#notify-complete').checked = state.settings.notifyOnComplete !== false; $('#reveal-complete').checked = state.settings.revealOnComplete === true; $('#completion-result').textContent = ''; setDetailTab('status'); renderDetails(); showDialog('#details-dialog'); }
 function renderDetails() { const d = state.downloads.find(d => d.id === detailId); if (!d) { $('#details-dialog').close(); return; } const status = statusOf(d), percent = percentage(d), content = $('#details-content'); $('#details-title').textContent = `${percent !== null ? `${Math.floor(percent)}% ` : ''}${d.filename || 'Download status'}`; $('#transfer-source').textContent = d.url || ''; $('#transfer-source').title = d.url || ''; const names = {completed:'Complete',downloading:'Receiving data…',connecting:'Connecting…',paused:'Stopped',queued:'Queued',scheduled:'Scheduled',failed:'Error',cancelled:'Cancelled',assembling:'Finalizing…'}; const rows = [['Status',names[status] || status],['File size',sizeLabel(d)],['Downloaded',`${bytes(d.downloaded)}${percent !== null ? ` (${percent.toFixed(2)}%)` : ''}`],['Transfer rate',status === 'downloading' ? `${bytes(d.speed)}/sec` : '0 B/sec'],['Time left',status === 'downloading' ? timeLeft(d) || 'Estimating…' : '—'],['Resume capability',d.resumable === true ? 'Yes' : d.resumable === false ? 'No' : 'Checking…']]; if (numeric(d.duration)) rows.splice(1,0,['Video duration',`${Math.floor(d.duration/60)} min ${Math.floor(d.duration%60)} sec`]); if(d.streamProgress?.total&&status!=='completed')rows.push(['Segments',`${d.streamProgress.completed} / ${d.streamProgress.total}`]); if (d.scheduledAt && status === 'scheduled') rows.push(['Start at',date(d.scheduledAt)]); if (d.notice) rows.push(['Note',d.notice]); content.replaceChildren(); for (const [label,value] of rows) content.append(element('dt','',label),element('dd','',value)); const progress = $('#detail-progress'); if (percent === null && ['downloading','connecting'].includes(status)) progress.removeAttribute('value'); else progress.value = percent || 0; const segments = Array.isArray(d.connectionsProgress) ? d.connectionsProgress : []; const bars = $('#segment-bars'), map = $('#segment-map'); bars.replaceChildren(); map.replaceChildren(); for (let index = 0; index < segments.length; index++) { const segment = segments[index]; const row = element('tr'); const segmentStatus = segment.status === 'complete' || segment.status === 'completed' ? 'Completed.' : segment.status || (status === 'downloading' ? 'Receiving data…' : names[status] || status); row.append(element('td','',String(index + 1)),element('td','',bytes(segment.downloaded)),element('td','',segmentStatus)); bars.append(row); const bar = element('progress'); bar.max = 100; const total = numeric(segment.total); bar.value = total ? Math.min(100,numeric(segment.downloaded) / total * 100) : 0; bar.setAttribute('aria-label',`Connection ${index + 1} progress`); if (!total && status === 'downloading') bar.removeAttribute('value'); map.append(bar); } $('#segment-note').textContent = segments.length ? `${segments.length} connection(s)` : status === 'completed' ? 'Download completed.' : 'Connection progress appears when the transfer starts.'; $('#detail-error').textContent = d.error || ''; $('#detail-error').hidden = !d.error; $('#detail-open').disabled = status !== 'completed'; $('#detail-resume').disabled = !canResume(d) || pending.has(d.id); $('#detail-stop').disabled = !canPause(d) || pending.has(d.id); $('#detail-cancel').disabled = ['completed','cancelled'].includes(status) || pending.has(d.id); $('.transfer-buttons').hidden=status==='completed'; $('#download-complete-actions').hidden=status!=='completed'; $('#details-dialog').classList.toggle('is-complete',status==='completed'); }

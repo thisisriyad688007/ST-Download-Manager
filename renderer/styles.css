@@ -1678,3 +1678,79 @@ body.progress-window #details-dialog {
   gap: 8px !important;
   z-index: 10 !important;
 }
+
+
+
+/* ==========================================================================
+   REVIEW WINDOW (BROWSER INTEGRATION STANDALONE WINDOW) PERFECT FIT
+   ========================================================================== */
+
+/* ব্রাউজার ডাউনলোড কনফার্মেশন উইন্ডো যখন খোলে */
+body.review-window {
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+  background: #f8fafc !important;
+}
+
+body.review-window .app-shell,
+body.review-window #details-dialog {
+  display: none !important;
+}
+
+body.review-window #add-dialog {
+  display: flex !important;
+  flex-direction: column !important;
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: #ffffff !important;
+}
+
+body.review-window #add-dialog > .dialog-title {
+  display: none !important;
+}
+
+body.review-window #add-dialog form#add-form {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+}
+
+body.review-window #add-dialog .dialog-body {
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  padding: 16px 20px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+body.review-window #add-dialog .dialog-footer {
+  flex-shrink: 0 !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  padding: 0 16px !important;
+  background: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+}
+
+/* প্লেলিস্ট মোডাল ডায়ালগ ব্যাকড্রপ */
+#st-playlist-dlg::backdrop {
+  background: rgba(15, 23, 42, 0.45) !important;
+  backdrop-filter: blur(2px) !important;
+}
