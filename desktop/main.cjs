@@ -264,13 +264,38 @@ if (process.argv.includes('--native-host')) {
       installUpdateNow: async ({ downloadUrl, fileName }) => {
         const { app, shell } = require('electron');
         const https = require('https');
+        const http = require('http');
         const fs = require('fs');
         const path = require('path');
-        const tempPath = path.join(app.getPath('temp'), fileName || 'ST-Download-Manager-Installer.exe');
-        
+        const tempPath = path.join(app.getPath('temp'), fileName || 'ST-Download-Manager-Update.exe');
+
         return new Promise((resolve, reject) => {
-          function downloadFile(url) {
-            https.get(url, { headers: { 'User-Agent': 'ST-Download-Manager' } }, res => {
+          function fetchDownload(targetUrl) {
+            const client = targetUrl.startsWith('https') ? https : http;
+            client.get(targetUrl, {
+              headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ST-Download-Manager' }
+            }, res => {
+              if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+                return fetchDownload(res.headers.location);
+              }
+              if (res.statusCode !== 200) {
+                return reject(new Error('Download failed with status ' + res.statusCode));
+              }
+              const fileStream = fs.createWriteStream(tempPath);
+              res.pipe(fileStream);
+              fileStream.on('finish', () => {
+                fileStream.close(() => {
+                  shell.openPath(tempPath);
+                  setTimeout(() => app.quit(), 1500);
+                  resolve(true);
+                });
+              });
+              fileStream.on('error', reject);
+            }).on('error', reject);
+          }
+          fetchDownload(downloadUrl);
+        });
+      }, res => {
               if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
                 return downloadFile(res.headers.location);
               }

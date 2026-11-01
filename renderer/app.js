@@ -893,37 +893,64 @@ async function start() { try { await refresh(); if (typeof api.subscribe === 'fu
         const desc = $('#update-status-desc');
         const footer = $('#update-dialog .dialog-footer');
         title.textContent = 'Checking for updates…';
-        desc.textContent = 'Querying GitHub releases server…';
+        desc.textContent = 'Connecting to GitHub releases server…';
         footer.innerHTML = '<button type="button" class="button primary" data-close style="min-width: 90px;">OK</button>';
         showDialog('#update-dialog');
+
+        const CURRENT_VER = 'v0.1.4';
+
         try {
-          const res = await call('checkForUpdates');
-          if (res && res.hasUpdate) {
-            title.textContent = 'New update available: ' + res.latest;
-            desc.innerHTML = `Current version: <strong>${res.current}</strong> &rarr; Latest: <strong style="color:#16a34a">${res.latest}</strong><br><span id="up-progress-txt" style="font-size:11px;color:#64748b;">Click below to download & install automatically.</span>`;
+          // GitHub API থেকে সরাসরি ক্যাশ ছাড়া লাইভ রিলিজ ফেচ করা
+          const res = await fetch('https://api.github.com/repos/thisisriyad688007/ST-Download-Manager/releases/latest', {
+            cache: 'no-store',
+            headers: { 'Accept': 'application/vnd.github.v3+json' }
+          });
+
+          if (!res.ok) throw new Error('GitHub API response status: ' + res.status);
+          const data = await res.json();
+          const latestTag = data.tag_name || '';
+
+          // ক্লিন ভার্সন কম্প্যারিজন (যেমন 0.1.5 > 0.1.4)
+          const cleanLatest = latestTag.replace(/^v/, '').trim();
+          const cleanCurrent = CURRENT_VER.replace(/^v/, '').trim();
+
+          const hasUpdate = cleanLatest && (cleanLatest !== cleanCurrent);
+
+          if (hasUpdate) {
+            title.textContent = 'New update available: ' + latestTag;
+            desc.innerHTML = `Current version: <strong>${CURRENT_VER}</strong> &rarr; Latest: <strong style="color:#16a34a">${latestTag}</strong><br><span id="up-progress-txt" style="font-size:11.5px;color:#64748b;display:block;margin-top:6px;">A new installer is available. Click below to install.</span>`;
+            
+            // অ্যাসেট থেকে .exe ফাইল বের করা
+            const exeAsset = data.assets?.find(a => a.name.toLowerCase().endsWith('.exe'));
+            const downloadUrl = exeAsset ? exeAsset.browser_download_url : data.html_url;
+            const assetName = exeAsset ? exeAsset.name : `ST.Download.Manager.${latestTag}.exe`;
+
             footer.innerHTML = `
               <button type="button" class="button" data-close>Later</button>
-              <button type="button" class="button primary" id="btn-install-now" style="background:#16a34a;border-color:#15803d;">Update Now</button>
+              <button type="button" class="button primary" id="btn-install-now" style="background:#16a34a;border-color:#15803d;font-weight:600;">Update Now</button>
             `;
+
             document.getElementById('btn-install-now')?.addEventListener('click', async () => {
               const btn = document.getElementById('btn-install-now');
+              const progressTxt = document.getElementById('up-progress-txt');
               btn.disabled = true;
               btn.textContent = 'Downloading...';
-              document.getElementById('up-progress-txt').textContent = 'Downloading installer from GitHub... App will restart.';
+              progressTxt.innerHTML = '<span style="color:#0284c7;font-weight:600;">Downloading update installer... The application will restart automatically.</span>';
+
               try {
-                await call('installUpdateNow', { downloadUrl: res.downloadUrl, fileName: res.fileName });
+                await call('installUpdateNow', { downloadUrl, fileName: assetName });
               } catch (err) {
-                alert('Update download failed. Opening release page instead.');
-                call('openFile', res.downloadUrl);
+                progressTxt.textContent = 'Auto-install failed. Opening browser download...';
+                window.open(downloadUrl, '_blank');
               }
             });
           } else {
             title.textContent = 'ST Download Manager is up to date!';
-            desc.textContent = 'You are running the latest version (' + (res?.current || 'v0.1.5') + ').';
+            desc.textContent = `You are running the latest version (${CURRENT_VER}).`;
           }
-        } catch (e) {
-          title.textContent = 'ST Download Manager is up to date!';
-          desc.textContent = 'You are running the latest version (v0.1.5).';
+        } catch (err) {
+          title.textContent = 'Check failed';
+          desc.textContent = 'Could not fetch update from GitHub. Please check your internet connection.';
         }
         return;
       }
