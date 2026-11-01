@@ -174,6 +174,28 @@ if (process.argv.includes('--native-host')) {
             await new Promise((resolve,reject)=>require('node:child_process').execFile(path.join(process.env.SystemRoot||'C:\\Windows','System32','OpenWith.exe'),[d.path],{windowsHide:true},error=>error?reject(error):resolve()));
           } else if (action === 'reveal') { if (d.path) shell.showItemInFolder(d.path); else await shell.openPath(d.directory); }
           else return engine.action(id, action);
+
+      if (name === "openFile") return data ? shell.openPath(data) : false;
+      
+      if (name === "computeHash") {
+        const crypto = require("crypto");
+        const fs = require("fs");
+        const { filePath, algorithm } = data || {};
+        if (!filePath || !fs.existsSync(filePath)) throw new Error("File not found on disk");
+        return new Promise((resolve, reject) => {
+          const hash = crypto.createHash(algorithm || "sha256");
+          const stream = fs.createReadStream(filePath);
+          stream.on("data", chunk => hash.update(chunk));
+          stream.on("end", () => resolve(hash.digest("hex")));
+          stream.on("error", reject);
+        });
+      }
+
+      if (name === "revealFile") {
+        if (data) shell.showItemInFolder(data);
+        return true;
+      }
+
         },
         settings: data => engine.updateSettings(data),
         chooseDirectory: async (_data, senderWindow) => {
@@ -194,32 +216,8 @@ if (process.argv.includes('--native-host')) {
         }
         throw new Error('Unknown browser setup action.');
       };
-      for (const [name, handler] of Object.entries(handlers)) 
-
-
-    
-    // Shell Actions for Context Menu
-    ipcMain.handle("downloader:openFile", async (_e, filePath) => {
-      try {
-        if (!filePath) return false;
-        await shell.openPath(filePath);
-        return true;
-      } catch (err) {
-        return false;
-      }
-    });
-
-    ipcMain.handle("downloader:revealFile", async (_e, filePath) => {
-      try {
-        if (!filePath) return false;
-        shell.showItemInFolder(filePath);
-        return true;
-      } catch (err) {
-        return false;
-      }
-    });
-
-    ipcMain.handle(`downloader:${name}`, (event, data) => {
+      for (const [name, handler] of Object.entries(handlers))
+ipcMain.handle(`downloader:${name}`, (event, data) => {
         if (![window,...progressWindows.values()].some(w=>!w.isDestroyed()&&event.senderFrame===w.webContents.mainFrame)) throw new Error('Untrusted renderer.');
         return handler(data, BrowserWindow.fromWebContents(event.sender));
       });

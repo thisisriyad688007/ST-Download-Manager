@@ -826,3 +826,63 @@ start().then(async()=>{
     localStorage.setItem('browser-setup-introduced','1');
   }
 });
+
+
+// --- Checksum & Properties Handler ---
+document.addEventListener("DOMContentLoaded", () => {
+  const tabChecksum = document.getElementById("tab-checksum");
+  const panelChecksum = document.getElementById("checksum-panel");
+  if (tabChecksum && panelChecksum) {
+    tabChecksum.addEventListener("click", () => {
+      document.querySelectorAll("#details-dialog [role=tab]").forEach(t => {
+        t.classList.remove("active-tab");
+        t.setAttribute("aria-selected", "false");
+      });
+      document.querySelectorAll("#details-dialog [role=tabpanel]").forEach(p => p.hidden = true);
+      tabChecksum.classList.add("active-tab");
+      tabChecksum.setAttribute("aria-selected", "true");
+      panelChecksum.hidden = false;
+    });
+
+    const btnCalc = document.getElementById("btn-calc-hash");
+    const hashAlgo = document.getElementById("hash-algo");
+    const hashResult = document.getElementById("hash-result");
+    const hashCompare = document.getElementById("hash-compare");
+    const hashStatus = document.getElementById("hash-match-status");
+
+    btnCalc?.addEventListener("click", async () => {
+      const activeDownload = currentDetailsDownload;
+      const targetPath = activeDownload?.path || activeDownload?.targetPath;
+      if (!targetPath) {
+        hashResult.value = "Error: File path unavailable or incomplete download.";
+        return;
+      }
+      hashResult.value = "Calculating " + hashAlgo.value.toUpperCase() + "...";
+      try {
+        const computed = await call("computeHash", { filePath: targetPath, algorithm: hashAlgo.value });
+        hashResult.value = computed;
+        verifyMatch();
+      } catch (err) {
+        hashResult.value = "Failed: " + (err.message || err);
+      }
+    });
+
+    function verifyMatch() {
+      const expected = hashCompare.value.trim().toLowerCase();
+      const actual = hashResult.value.trim().toLowerCase();
+      if (!expected || !actual || actual.startsWith("error") || actual.startsWith("calculating")) {
+        hashStatus.textContent = "";
+        return;
+      }
+      if (expected === actual) {
+        hashStatus.style.color = "#107c41";
+        hashStatus.textContent = "✔ Checksum MATCH! The downloaded file is 100% authentic.";
+      } else {
+        hashStatus.style.color = "#d83b01";
+        hashStatus.textContent = "✖ Checksum MISMATCH! File may be corrupt or tampered.";
+      }
+    }
+
+    hashCompare?.addEventListener("input", verifyMatch);
+  }
+});

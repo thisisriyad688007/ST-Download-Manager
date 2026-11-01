@@ -1,4 +1,36 @@
 
+function getCategoryForFilename(filename, customExtensions = {}) {
+  const ext = (filename.split(".").pop() || "").toLowerCase();
+  for (const [cat, exts] of Object.entries(customExtensions)) {
+    const list = Array.isArray(exts) ? exts : String(exts).split(/[,\s]+/);
+    if (list.map(e => e.replace(/^\./, "").toLowerCase()).includes(ext)) return cat;
+  }
+  const defaults = {
+    Compressed: ["zip", "rar", "7z", "tar", "gz", "bz2", "xz", "iso"],
+    Documents: ["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt"],
+    Music: ["mp3", "wav", "flac", "aac", "ogg", "m4a"],
+    Programs: ["exe", "msi", "bat", "cmd", "sh", "apk", "dmg"],
+    Video: ["mp4", "mkv", "avi", "mov", "flv", "webm", "ts"]
+  };
+  for (const [cat, exts] of Object.entries(defaults)) {
+    if (exts.includes(ext)) return cat;
+  }
+  return "Other";
+}
+
+function getSiteCredentials(targetUrl, siteLogins = []) {
+  try {
+    const u = new URL(targetUrl);
+    for (const entry of siteLogins) {
+      if (entry.pattern && u.hostname.includes(entry.pattern)) {
+        return { username: entry.username, password: entry.password };
+      }
+    }
+  } catch (_) {}
+  return null;
+}
+
+
 async function ensureActualMp3(filePath) {
   if (!filePath || typeof filePath !== 'string' || !filePath.toLowerCase().endsWith('.mp3')) return filePath;
   const tempPath = filePath + '.raw.tmp';
@@ -75,7 +107,7 @@ export class DownloadEngine extends EventEmitter {
     this.dataDirectory = dataDirectory;
     this.statePath = path.join(dataDirectory, 'downloads.json');
     this.partsDirectory = path.join(dataDirectory, 'parts');
-    this.settings = { defaultDirectory: downloadDirectory, maxConcurrent: 3, connections: 8, speedLimitKbps: 0, categoryDirectories: {}, notifyOnComplete: true, revealOnComplete: false, confirmBrowserDownloads: true };
+    this.settings = { defaultDirectory: downloadDirectory, maxConcurrent: 3, connections: 8, speedLimitKbps: 0, categoryDirectories: {}, categoryExtensions: {}, siteLogins: [], proxy: { enabled: false, url: "" }, notifyOnComplete: true, revealOnComplete: false, confirmBrowserDownloads: true };
     this.downloads = [];
     this.jobs = new Map();
     this.persistChain = Promise.resolve();
