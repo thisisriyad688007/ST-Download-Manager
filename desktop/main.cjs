@@ -318,7 +318,23 @@ ipcMain.handle(`downloader:${name}`, (event, data) => {
             detail: "Developed by: Swap Tech\nAddress: Dr Nuruzzaman Plaza, Kanagoli, Santhia Bazar, Pabna\n\nFast, smart and reliable multi-threaded download manager with browser integration."
           }) }
         ] }
-      ]));      engine.on('complete', d => {
+      ]));      const broadcastSnapshot = () => {
+        const snap = snapshot();
+        if (window && !window.isDestroyed()) {
+          window.webContents.send('downloader:change', snap);
+        }
+        for (const prog of progressWindows.values()) {
+          if (prog && !prog.isDestroyed()) {
+            prog.webContents.send('downloader:change', snap);
+          }
+        }
+      };
+
+      engine.on('change', () => {
+        broadcastSnapshot();
+      });
+
+      engine.on('complete', d => {
         const progress=progressWindows.get(d.id);
         if(progress&&!progress.isDestroyed()){if(engine.settings.hideCompletionDialog)progress.close();else{progress.setMinimumSize(470,270);progress.setSize(480,280);progress.setTitle('Download complete');}}
         if (engine.settings.notifyOnComplete && Notification.isSupported()) new Notification({ title: 'Download complete', body: d.filename }).show();
