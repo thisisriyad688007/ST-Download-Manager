@@ -609,3 +609,242 @@ progress::-webkit-progress-value {
   padding: 2px 8px;
   border-bottom: 1px solid #f1f5f9;
 }
+
+
+
+/* ==========================================================================
+   PIXEL-PERFECT DIALOGS & PROFESSIONAL FORM LAYOUTS (CLEAN ALIGNMENT)
+   ========================================================================== */
+
+/* সেন্টারড ডায়ালগ উইন্ডো */
+dialog {
+  margin: auto !important;
+  inset: 0 !important;
+  width: min(580px, calc(100vw - 40px)) !important;
+  background: #ffffff !important;
+  border: 1px solid #d0d7de !important;
+  border-radius: 12px !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+dialog::backdrop {
+  background: rgba(15, 23, 42, 0.4) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* ডায়ালগ টাইটেল বার */
+.dialog-title {
+  height: 48px !important;
+  background: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0 20px !important;
+}
+
+.dialog-title strong {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #0f172a !important;
+}
+
+.close-button {
+  width: 32px !important;
+  height: 32px !important;
+  border: 0 !important;
+  background: transparent !important;
+  border-radius: 6px !important;
+  color: #64748b !important;
+  font-size: 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.15s ease !important;
+}
+
+.close-button:hover {
+  background: #fee2e2 !important;
+  color: #ef4444 !important;
+}
+
+/* ডায়ালগ বডি ও ফর্ম স্পেসিং */
+.dialog-body {
+  padding: 20px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+  max-height: calc(85vh - 120px) !important;
+  overflow-y: auto !important;
+}
+
+/* ফর্ম লাইন - একদম সোজা এলাইনমেন্ট */
+.form-line {
+  display: grid !important;
+  grid-template-columns: 130px 1fr !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin: 0 !important;
+}
+
+.form-line > label {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: #334155 !important;
+  text-align: right !important;
+  padding-right: 6px !important;
+  white-space: normal !important;
+  line-height: 1.3 !important;
+}
+
+.address-line {
+  align-items: flex-start !important;
+}
+
+.address-line > label {
+  padding-top: 8px !important;
+}
+
+/* ফিল্ড হেল্প ও নোটিশ */
+.field-help {
+  font-size: 11px !important;
+  color: #64748b !important;
+  margin: -6px 0 6px 142px !important;
+  line-height: 1.4 !important;
+}
+
+/* ইনপুট, টেক্সটএরিয়া ও সিলেক্ট */
+input, textarea, select {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  padding: 7px 11px !important;
+  font-size: 12.5px !important;
+  color: #0f172a !important;
+  transition: all 0.15s ease !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
+  outline: none !important;
+}
+
+textarea {
+  min-height: 48px !important;
+  resize: vertical !important;
+}
+
+/* ডিরেক্টরি পিক ফিল্ড */
+.directory-field {
+  display: flex !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+
+.directory-field input {
+  flex: 1 !important;
+}
+
+/* আধুনিক কার্ড-স্টাইল ফিল্ডসেট (Options ডায়ালগের জন্য) */
+fieldset {
+  border: 1px solid #e2e8f0 !important;
+  background: #f8fafc !important;
+  border-radius: 8px !important;
+  padding: 14px 16px !important;
+  margin: 0 0 8px 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+legend {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #0f172a !important;
+  padding: 0 8px !important;
+  background: transparent !important;
+}
+
+/* চেকবক্স ও লেবেল সুসজ্জিত বিন্যাস */
+.checkbox-label, fieldset label:has(input[type="checkbox"]) {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 12px !important;
+  color: #334155 !important;
+  cursor: pointer !important;
+  user-select: none !important;
+  line-height: 1.4 !important;
+  margin: 2px 0 !important;
+  font-weight: 400 !important;
+  text-align: left !important;
+}
+
+.checkbox-label input[type="checkbox"], fieldset input[type="checkbox"] {
+  width: 16px !important;
+  height: 16px !important;
+  accent-color: #0284c7 !important;
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+  cursor: pointer !important;
+}
+
+/* Options ডায়ালগের ভেতরের ইনপুট সাইজিং */
+#settings-dialog .form-line {
+  grid-template-columns: 240px 100px !important;
+  justify-content: space-between !important;
+}
+
+#settings-dialog .form-line > label {
+  text-align: left !important;
+  padding-right: 0 !important;
+}
+
+/* ডায়ালগ ফুটার বাটন বার */
+.dialog-footer {
+  background: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  padding: 12px 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+}
+
+.button, .small-button {
+  height: 34px !important;
+  padding: 0 16px !important;
+  border-radius: 6px !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #334155 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.15s ease !important;
+}
+
+.button:hover, .small-button:hover {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+.button.primary, #settings-dialog button[type="submit"] {
+  background: #0284c7 !important;
+  border: 1px solid #0369a1 !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.3) !important;
+}
+
+.button.primary:hover, #settings-dialog button[type="submit"]:hover {
+  background: #0369a1 !important;
+}
