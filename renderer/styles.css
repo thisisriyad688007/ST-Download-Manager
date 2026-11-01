@@ -811,3 +811,10 @@ body.progress-window .connections-scroll {
 #details-dialog.is-complete .dialog-footer {
   display: none !important;
 }
+
+
+
+/* অতিরিক্ত ৩২টি প্রগ্রেস বার কন্টেইনার বন্ধ */
+#segment-map {
+  display: none !important;
+}
