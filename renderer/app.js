@@ -690,7 +690,23 @@ function percentage(d) { return statusOf(d) === 'completed' ? 100 : numeric(d.to
 function messageOf(error) { return error?.message || String(error || 'The operation failed.'); }
 function notify(message,error = false) { clearTimeout(toastTimer); $('#toast-text').textContent = message; $('#toast').dataset.error = String(error); $('#toast').hidden = false; toastTimer = setTimeout(() => { $('#toast').hidden = true; },error ? 14000 : 7000); }
 async function call(method,...args) { if (!api || typeof api[method] !== 'function') throw new Error('The download service is unavailable. Restart ST Download Manager.'); const result = await api[method](...args); if (result?.error && !result.downloads) throw new Error(typeof result.error === 'string' ? result.error : result.error.message || 'The request failed.'); return result; }
-function acceptSnapshot(snapshot) { if (!snapshot || !Array.isArray(snapshot.downloads)) return; state = {downloads:snapshot.downloads,settings:snapshot.settings || state.settings,integration:snapshot.integration || state.integration}; const valid=new Set(state.downloads.map(d=>d.id)); for(const id of selectedIds)if(!valid.has(id))selectedIds.delete(id); if (!valid.has(selectedId)) selectedId = selectedIds.values().next().value || null; $('#download-list').setAttribute('aria-busy','false'); $('#connection-label').textContent = 'Connected'; render(); if (!$$('dialog[open]').length) { const review = progressMode && state.downloads.find(d => d.id === progressMode && d.needsReview && !dismissedReviews.has(d.id)); if (review) openReview(review.id); } }
+function acceptSnapshot(snapshot) { if (!snapshot || !Array.isArray(snapshot.downloads)) return; state = {downloads:snapshot.downloads,settings:snapshot.settings || state.settings,integration:snapshot.integration || state.integration}; const valid=new Set(state.downloads.map(d=>d.id)); for(const id of selectedIds)if(!valid.has(id))selectedIds.delete(id); if (!valid.has(selectedId)) selectedId = selectedIds.values().next().value || null; $('#download-list').setAttribute('aria-busy','false'); $('#connection-label').textContent = 'Connected'; render(); if (progressMode) {
+    const d = state.downloads.find(item => item.id === progressMode);
+    if (d) {
+      if (d.needsReview && !dismissedReviews.has(d.id)) {
+        if (!$$('dialog[open]').length) openReview(d.id);
+      } else {
+        if (detailId !== progressMode || !$('#details-dialog').open) {
+          showDetails(progressMode);
+        } else {
+          renderDetails();
+        }
+      }
+    }
+  } else if (!$$('dialog[open]').length) {
+    const review = state.downloads.find(d => d.needsReview && !dismissedReviews.has(d.id));
+    if (review) openReview(review.id);
+  } }
 async function refresh() { acceptSnapshot(await call('snapshot')); }
 function selected() { return state.downloads.find(d => d.id === selectedId); }
 function canResume(d) { return d && !d.needsReview && ['paused','queued','scheduled','failed','cancelled'].includes(statusOf(d)); }
@@ -828,6 +844,8 @@ async function start() { try { await refresh(); if (typeof api.subscribe === 'fu
       if (command === 'reviewDownload') { try { await refresh(); if (!$$('dialog[open]').length) openReview(payload.id); } catch (error) { notify(messageOf(error),true); } return; } if (!$$('dialog[open]').length || ['pauseAll','resumeAll','removeCompleted'].includes(command)) commands[command]?.(); }); } catch (error) { $('#download-list').setAttribute('aria-busy','false'); $('#list-count').textContent = 'Download service unavailable'; $('#connection-label').textContent = 'Disconnected'; notify(messageOf(error),true); } }
 window.addEventListener('beforeunload',() => { if (typeof unsubscribe === 'function') unsubscribe(); if (typeof unsubscribeCommands === 'function') unsubscribeCommands(); });
 if(progressMode){
+  detailId = progressMode;
+  showDialog('#details-dialog');
   $('#details-dialog').addEventListener('close',()=>call('closeProgress'));
   new MutationObserver(()=>{document.title=$('#details-title').textContent;}).observe($('#details-title'),{childList:true,characterData:true,subtree:true});
   // The initial snapshot decides between confirmation and transfer progress.
