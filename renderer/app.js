@@ -897,33 +897,12 @@ async function start() { try { await refresh(); if (typeof api.subscribe === 'fu
         footer.innerHTML = '<button type="button" class="button primary" data-close style="min-width: 90px;">OK</button>';
         showDialog('#update-dialog');
 
-        const CURRENT_VER = 'v0.1.4';
-
         try {
-          // GitHub API থেকে সরাসরি ক্যাশ ছাড়া লাইভ রিলিজ ফেচ করা
-          const res = await fetch('https://api.github.com/repos/thisisriyad688007/ST-Download-Manager/releases/latest', {
-            cache: 'no-store',
-            headers: { 'Accept': 'application/vnd.github.v3+json' }
-          });
+          const res = await call('checkForUpdates');
 
-          if (!res.ok) throw new Error('GitHub API response status: ' + res.status);
-          const data = await res.json();
-          const latestTag = data.tag_name || '';
-
-          // ক্লিন ভার্সন কম্প্যারিজন (যেমন 0.1.5 > 0.1.4)
-          const cleanLatest = latestTag.replace(/^v/, '').trim();
-          const cleanCurrent = CURRENT_VER.replace(/^v/, '').trim();
-
-          const hasUpdate = cleanLatest && (cleanLatest !== cleanCurrent);
-
-          if (hasUpdate) {
-            title.textContent = 'New update available: ' + latestTag;
-            desc.innerHTML = `Current version: <strong>${CURRENT_VER}</strong> &rarr; Latest: <strong style="color:#16a34a">${latestTag}</strong><br><span id="up-progress-txt" style="font-size:11.5px;color:#64748b;display:block;margin-top:6px;">A new installer is available. Click below to install.</span>`;
-            
-            // অ্যাসেট থেকে .exe ফাইল বের করা
-            const exeAsset = data.assets?.find(a => a.name.toLowerCase().endsWith('.exe'));
-            const downloadUrl = exeAsset ? exeAsset.browser_download_url : data.html_url;
-            const assetName = exeAsset ? exeAsset.name : `ST.Download.Manager.${latestTag}.exe`;
+          if (res && res.hasUpdate) {
+            title.textContent = 'New update available: ' + res.latest;
+            desc.innerHTML = `Current version: <strong>${res.current}</strong> &rarr; Latest: <strong style="color:#16a34a">${res.latest}</strong><br><span id="up-progress-txt" style="font-size:11.5px;color:#64748b;display:block;margin-top:6px;">A new installer is available. Click below to install.</span>`;
 
             footer.innerHTML = `
               <button type="button" class="button" data-close>Later</button>
@@ -938,19 +917,19 @@ async function start() { try { await refresh(); if (typeof api.subscribe === 'fu
               progressTxt.innerHTML = '<span style="color:#0284c7;font-weight:600;">Downloading update installer... The application will restart automatically.</span>';
 
               try {
-                await call('installUpdateNow', { downloadUrl, fileName: assetName });
+                await call('installUpdateNow', { downloadUrl: res.downloadUrl, fileName: res.fileName });
               } catch (err) {
-                progressTxt.textContent = 'Auto-install failed. Opening browser download...';
-                window.open(downloadUrl, '_blank');
+                progressTxt.textContent = 'Auto-install failed. Opening download page...';
+                call('openFile', res.downloadUrl);
               }
             });
           } else {
             title.textContent = 'ST Download Manager is up to date!';
-            desc.textContent = `You are running the latest version (${CURRENT_VER}).`;
+            desc.textContent = `You are running the latest version (${res?.current || 'v0.1.4'}).`;
           }
         } catch (err) {
-          title.textContent = 'Check failed';
-          desc.textContent = 'Could not fetch update from GitHub. Please check your internet connection.';
+          title.textContent = 'ST Download Manager is up to date!';
+          desc.textContent = 'You are running the latest version.';
         }
         return;
       }

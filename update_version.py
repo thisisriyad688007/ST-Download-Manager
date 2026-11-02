@@ -69,4 +69,22 @@ try:
 except Exception as e:
     print(f"  [!] renderer/app.js update error: {e}")
 
+
+# ৫. manifest.json ফাইলগুলো আপডেট
+import glob
+for mf in glob.glob("**/manifest*.json", recursive=True):
+    if "node_modules" in mf:
+        continue
+    try:
+        with open(mf, "r", encoding="utf-8") as f:
+            mdata = json.load(f)
+        if "version" in mdata:
+            mdata["version"] = clean_ver
+            with open(mf, "w", encoding="utf-8") as f:
+                json.dump(mdata, f, indent=2)
+                f.write("\n")
+            print(f"  [✓] Updated {mf}")
+    except Exception:
+        pass
+
 print(f"\n[SUCCESS] Successfully bumped all project files to {tag_ver}!")
