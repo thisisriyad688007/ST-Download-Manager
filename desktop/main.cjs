@@ -233,7 +233,11 @@ if (process.argv.includes('--native-host')) {
                 const cleanCurrent = currentVersion.replace(/^v/, '').trim();
                 const hasUpdate = cleanLatest !== cleanCurrent;
 
-                const exeAsset = release.assets?.find(a => a.name.toLowerCase().endsWith('.exe'));
+                // লেটেস্ট ভার্সনের নামের সাথে মিল রেখে সঠিক exe বের করা
+                let exeAsset = release.assets?.find(a => a.name.includes(cleanLatest) && a.name.toLowerCase().endsWith('.exe'));
+                if (!exeAsset) {
+                  exeAsset = release.assets?.find(a => a.name.toLowerCase().endsWith('.exe'));
+                }
                 const downloadUrl = exeAsset ? exeAsset.browser_download_url : (release.html_url || 'https://github.com/thisisriyad688007/ST-Download-Manager/releases');
                 const assetName = exeAsset ? exeAsset.name : `ST.Download.Manager.${latestTag}.exe`;
 
